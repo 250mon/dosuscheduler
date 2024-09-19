@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Create/Update Worker{% endblock %}
+{% block content %}
+    <h1 class="my-4">{{ 'Update Worker' if form.name.data else 'Create New Worker' }}</h1>
+    <form method="post">
+        {% include "form_errors.html" %}
+        {{ form.csrf_token }}
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.name.label }}</span>
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.room.label }}</span>
+            {{ form.room(class="form-select") }}
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.user_id.label }}</span>
+            <select class="form-select" name="user_id">
+                {% if form.user_id.data %}
+                    <option>Choose the user</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}"
+                                "
+                                {{ 'selected' if user.id == form.user_id.data }}
+                                ">{{ user.username }}</option>
+                    {% endfor %}
+                {% else %}
+                    <option selected>Choose the user</option>
+                    {% for user in users %}<option value="{{ user.id }}">{{ user.username }}</option>{% endfor %}
+                {% endif %}
+            </select>
+        </div>
+        <div class="row mb-5 align-items-center">
+            <label class="col-md-2">{{ form.available.label }}</label>
+            <div class="col-sm-8 btn-group" role="group">
+                <input type="radio" class="btn-check" id="available_yes" name="available" value="yes" {{ 'checked' if form.available.data == 'True' or 'yes' }}>
+                <label class="btn btn-outline-primary" for="available_yes">활성</label>
+                <input type="radio" class="btn-check" id="available_no" name="available" value="no" {{ 'checked' if form.available.data == 'False' }}>
+                <label class="btn btn-outline-secondary" for="available_no">비활성</label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">저장하기</button>
+        <a class="btn btn-secondary" href="{{ url_for("worker.worker_list") }}">취소</a>
+    </form>
+{% endblock %}

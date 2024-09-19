@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}환자 상세 정보{% endblock %}
+{% block content %}
+    <h1 class="my-4">환자 상세 정보</h1>
+    <div class="col-8 mb-3">
+        <table class="table table-striped text-center align-middle">
+            <thead class="thead-dark">
+                <tr>
+                    <th>환자번호</th>
+                    <th>이 름</th>
+                    <th>성 별</th>
+                    <th>생 일</th>
+                    <th>전화번호</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ patient.mrn }}</td>
+                    <td>{{ patient.name }}</td>
+                    <td>{{ '남' if patient.sex == 'male' else '여' }}</td>
+                    <td>{{ patient.birthday }}</td>
+                    <td>{{ patient.tel }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="card">
+            <div class="card-header">메 모</div>
+            <div class="card-body">
+                <p class="card-text limited-text">{{ patient.note }}</p>
+            </div>
+        </div>
+    </div>
+    <div id="actions">
+        <a class="btn btn-info" href="{{ url_for("patient.patient_list") }}">환자 리스트</a>
+        <a class="btn btn-primary"
+           href="{{ url_for('patient.patient_update', id=patient.id) }}">수 정</a>
+        <a class="btn btn-danger"
+           href="{{ url_for('patient.patient_delete', id=patient.id) }}">삭 제</a>
+    </div>
+    <hr class="table-group-divider my-5">
+    <div class="container my-3">
+        <div class="row justify-content-between mb-4">
+            <h3 class="col-4 text-center">도수 리스트</h3>
+            <!-- Search -->
+            <div class="col-8">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="kwInput" value="{{ kw or '' }}">
+                    <button type="button" class="btn btn-outline-secondary" id="searchBtn">Search</button>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped text-center">
+            <thead>
+                <tr>
+                    <th scope="col">번 호</th>
+                    <th scope="col">날 짜</th>
+                    <th scope="col">상 태</th>
+                    <th scope="col">치료사</th>
+                    <th scope="col">도수타입</th>
+                    <th scope="col" class="max-width">노 트</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pagination %}
+                    {% for dosusess in pagination %}
+                        <tr class="text-center align-middle">
+                            <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) -loop.index0 }}</td>
+                            <td>{{ dosusess.dosusess_date }}</td>
+                            <td>{{ dosusess.status }}</td>
+                            <td>{{ dosusess.worker.name }}</td>
+                            <td>{{ dosusess.dosutype.name }}</td>
+                            <td>
+                                <div class="limited-text">{{ dosusess.note }}</div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3">해당 기록이 없습니다</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        <!-- Paging -->
+        <nav aria-label="...">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a href="#" class="page-link" data-page="{{ pagination.prev_num }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+                {% for page in pagination.iter_pages() %}
+                    {% if page %}
+                        {% if page != pagination.page %}
+                            <li class="page-item">
+                                <a href="#" class="page-link" data-page="{{ page }}">{{ page }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a href="#" class="page-link" data-page="{{ pagination.next_num }}">Next</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <form id="searchForm"
+          method="get"
+          action="{{ url_for("patient.patient_detail", id=patient.id) }}">
+        <input type="hidden" id="kwFormInput" name="kw" value="{{ kw or '' }}">
+        <input type="hidden" id="pageFormInput" name="page" value="{{ page }}">
+    </form>
+{% endblock %}
+{% block script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pageLinkEls = document.querySelectorAll(".page-link");
+            const searchFormEl = document.getElementById("searchForm");
+            const kwInputEl = document.getElementById("kwInput");
+            const kwInputFormEl = document.getElementById("kwFormInput");
+            const pageInputFormEl = document.getElementById("pageFormInput");
+            const searchBtnEl = document.getElementById("searchBtn");
+
+            pageLinkEls.forEach(function(pageLinkEl){
+                pageLinkEl.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    pageInputFormEl.value = this.getAttribute('data-page');
+                    searchFormEl.submit();
+                });
+            });
+
+            const searchFn = function(e) {
+                e.preventDefault();
+                const searchKw = kwInputEl.value;
+                kwInputFormEl.value = searchKw;
+                pageInputFormEl.value = 1;
+                searchFormEl.submit();
+            };
+            searchBtnEl.addEventListener('click', searchFn);
+            kwInputEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    searchFn(e);
+                }
+            });
+
+        });
+    </script>
+{% endblock %}

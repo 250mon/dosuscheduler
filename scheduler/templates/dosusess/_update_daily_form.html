@@ -1,0 +1,22 @@
+<!-- Adding custom CSS specifically for this template -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='styles_update_daily_dark.css') }}" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<meta name="csrf_token" content="{{ csrf_token() }}" />
+<div class="daily-container">
+    <div class="dosusess-list-container"
+         data-year="{{ dosusess.date.year }}"
+         data-month=" {{ dosusess.date.month }}"
+         data-day="{{ dosusess.date.day }}"
+         data-status_filter="{{ status_filter }}">
+        <div class="date-selector">
+            <button id="prev-day">&lt;</button>
+            <div class="date-display" id="date-display"></div>
+            <button id="next-day">&gt;</button>
+        </div>
+        <div class="rooms-container">
+            <div class="room-container" id="room1"></div>
+            <div class="room-container" id="room2"></div>
+        </div>
+    </div>
+</div>

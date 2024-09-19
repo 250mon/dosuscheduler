@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Update Dosu Session{% endblock %}
+{% block content %}
+    <h1 class="my-4">도수 스케줄 수정</h1>
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+    {% include "dosusess/_update_daily_modal.html" %}
+    <form id="updateDosuSessForm"
+          action="{{ url_for('dosusess.dosusess_update', id=dosusess.id, next=next) }}"
+          method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <!-- Basic patient info -->
+        <div class="col mb-5">
+            <table class="table table-striped">
+                <tr>
+                    <th>환자번호</th>
+                    <td>{{ dosusess.mrn }}</td>
+                </tr>
+                <tr>
+                    <th>환자이름</th>
+                    <td>{{ dosusess.patient_name }}</td>
+                </tr>
+                <tr>
+                    <th>환자전화번호</th>
+                    <td>{{ dosusess.tel }}</td>
+                </tr>
+                <tr>
+                    <th class="min-width">환자메모</th>
+                    <td>
+                        <div class="limited-text">{{ dosusess.patient_note }}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>치료사</th>
+                    <td id="update-workername">{{ dosusess.worker_name }}</td>
+                </tr>
+                <tr>
+                    <th>날 짜</th>
+                    <td id="update-date-display">{{ dosusess.date_display }}</td>
+                </tr>
+                <tr>
+                    <th>시간대</th>
+                    <td id="update-slot-display">{{ dosusess.slot_display }}</td>
+                </tr>
+            </table>
+        </div>
+        <input type="hidden"
+               id="update-room"
+               name="room"
+               value="{{ dosusess.room }}"
+               required>
+        <input type="hidden"
+               id="update-date"
+               name="dosusess_date"
+               value="{{ dosusess.date }}"
+               required>
+        <input type="hidden"
+               id="update-slot"
+               name="slot"
+               value="{{ dosusess.slot }}"
+               required>
+        <div class="input-group mb-3">
+            <span class="input-group-text">종 류</span>
+            <select type="number"
+                    class="form-select"
+                    id="dosutype-select"
+                    name="dosutype_id"
+                    required>
+                {% for dosutype in dosutypes %}
+                    <option value={{ dosutype.id }} {% if dosusess.dosutype_id == dosutype.id %}selected{% endif %}>{{ dosutype.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3 row">
+            <div class="btn-group col" role="group">
+                <input type="radio"
+                       class="btn-check"
+                       name="status"
+                       id="status-active"
+                       autocomplete="off"
+                       value="active"
+                       {% if dosusess.status == 'active' %}checked{% endif %}
+                       required>
+                <label class="btn btn-outline-primary" for="status-active">Active</label>
+                <input type="radio"
+                       class="btn-check"
+                       name="status"
+                       id="status-canceled"
+                       autocomplete="off"
+                       value="canceled"
+                       {% if dosusess.status == 'canceled' %}checked{% endif %}
+                       required>
+                <label class="btn btn-outline-secondary" for="status-canceled">Canceled</label>
+                <input type="radio"
+                       class="btn-check"
+                       name="status"
+                       id="status-noshow"
+                       autocomplete="off"
+                       value="noshow"
+                       {% if dosusess.status == 'noshow' %}checked{% endif %}
+                       required>
+                <label class="btn btn-outline-danger" for="status-noshow">No Show</label>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">메모</span>
+            <textarea class="form-control" id="note" name="note">{{ dosusess.note }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" href="{{ next }}">저 장</button>
+        <button type="button"
+                class="btn btn-warning"
+                data-bs-toggle="modal"
+                data-bs-target="#updateDailyModal">스케줄변경</button>
+        <a class="btn btn-secondary" href="{{ next }}">취 소</a>
+    </form>
+    <script type="module"
+            src="{{ url_for('static', filename='js/script_update_daily.js') }}"></script>
+{% endblock %}

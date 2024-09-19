@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Dosu Type List{% endblock %}
+{% block content %}
+    <h1 class="my-4">도수치료종류</h1>
+    <a class="btn btn-primary mb-3"
+       href="{{ url_for("dosutype.dosutype_create") }}">Create New Dosu Type</a>
+    <table class="table table-striped text-center">
+        <thead>
+            <tr>
+                <th scope="col">이 름</th>
+                <th scope="col">처방코드</th>
+                <th scope="col">타임단위갯수</th>
+                <th scope="col">가격</th>
+                <th scope="col">활성상태</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dosutype in dosutypes %}
+                <tr class="text-center align-middle">
+                    <td>
+                        <a href="{{ url_for('dosutype.dosutype_detail', id=dosutype.id) }}">{{ dosutype.name }}</a>
+                    </td>
+                    <td>{{ dosutype.order_code }}</td>
+                    <td>{{ dosutype.slot_quantity }}</td>
+                    <td>{{ dosutype.price|format_currency }}</td>
+                    <td>{{ dosutype.available }}</td>
+                    <td>
+                        <a class="btn btn-secondary btn-sm"
+                           href="{{ url_for('dosutype.dosutype_update', id=dosutype.id) }}">Update</a>
+                        <a class="btn btn-danger btn-sm"
+                           href="{{ url_for('dosutype.dosutype_delete', id=dosutype.id) }}">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

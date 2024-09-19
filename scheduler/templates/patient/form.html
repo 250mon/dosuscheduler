@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Create/Update Patient{% endblock %}
+{% block content %}
+    <h1 class="my-4">{{ 'Update Patient' if form.mrn.data else 'Create New Patient' }}</h1>
+    <form method="post">
+        {% include "form_errors.html" %}
+        {{ form.csrf_token }}
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.mrn.label }}</span>
+            {{ form.mrn(class="form-control", readonly=True) if form.mrn.data else form.mrn(class="form-control") }}
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.name.label }}</span>
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="mb-3 row row-cols-2">
+            <div class="btn-group col" role="group">
+                <label class="input-group-text">{{ form.sex.label }}</label>
+                <input type="radio" class="btn-check" id="sex_male" name="sex" value="male" {{ 'checked' if form.sex.data == 'male' }}>
+                <label class="btn btn-outline-primary" for="sex_male">남</label>
+                <input type="radio" class="btn-check" id="sex_female" name="sex" value="female" {{ 'checked' if form.sex.data == 'female' }}>
+                <label class="btn btn-outline-danger" for="sex_female">여</label>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.birthday.label }}</span>
+            {{ form.birthday(class="form-control", max="9999-12-31") }}
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.tel.label }}</span>
+            {{ form.tel(class="form-control") }}
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.note.label }}</span>
+            {{ form.note(class="form-control", style="height: 100px") }}
+        </div>
+        <button type="submit" class="btn btn-primary">저장하기</button>
+        <a class="btn btn-secondary"
+           href="{{ url_for("patient.patient_list") }}">취소</a>
+    </form>
+{% endblock %}

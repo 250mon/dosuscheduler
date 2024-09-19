@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}User List{% endblock %}
+{% block content %}
+    <h1 class="my-4">사용자 리스트</h1>
+    <table class="table table-striped text-center">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Privilege</th>
+                <th scope="col">Available</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr class="text-center align-middle">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.privilege }}</td>
+                    <td>{{ user.available }}</td>
+                    <td>
+                        <a class="btn btn-info btn-sm"
+                           href="{{ url_for('auth.user_modify', id=user.id) }}">수정</a>
+                        <a class="btn btn-danger btn-sm"
+                           href="{{ url_for('auth.user_delete', id=user.id) }}">삭제</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

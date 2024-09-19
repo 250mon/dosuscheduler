@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Config Detail{% endblock %}
+{% block content %}
+    <h1 class="my-4">Config Detail</h1>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">{{ config.name }}</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">
+                <strong>현재셋팅:</strong> {{ config.is_default }}
+            </p>
+            <div class="row">
+                <div class="col-md-5">
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>시작 날짜:</strong> {{ config.start_date }}
+                    </p>
+                </div>
+                <div class="col-md-5 ms-auto">
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>종료 날짜:</strong> {{ config.end_date }}
+                    </p>
+                </div>
+            </div>
+            <hr class="table-group-divider my-4">
+            <div class="row">
+                <div class="col-md-5">
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>평일 시작시간:</strong> {{ config.wd_start_hour | format_time }}
+                    </p>
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>평일 종료시간:</strong> {{ config.wd_end_hour | format_time }}
+                    </p>
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>평일 점심시작시간:</strong> {{ config.wd_lunch_start_hour | format_time }}
+                    </p>
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>평일 점심종료시간:</strong> {{ config.wd_lunch_end_hour | format_time }}
+                    </p>
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>평일 오버타임시작시간:</strong> {{ config.wd_overtime_hour | format_time }}
+                    </p>
+                </div>
+                <div class="col-md-5 ms-auto">
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>토요일 시작시간:</strong> {{ config.sd_start_hour | format_time }}
+                    </p>
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>토요일 종료시간:</strong> {{ config.sd_end_hour | format_time }}
+                    </p>
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>토요일 오버타임시작시간:</strong> {{ config.sd_overtime_hour | format_time }}
+                    </p>
+                    <p class="card-text d-flex justify-content-between">
+                        <strong>슬롯시간:</strong> {{ config.duration | format_time }}
+                    </p>
+                </div>
+            </div>
+            <div id="action" class="mt-4 text-center">
+                <a class="btn btn-primary me-2"
+                   href="{{ url_for("config.config_list") }}">
+                    <i class="fas fa-list"></i> Config List
+                </a>
+                <a class="btn btn-danger"
+                   href="{{ url_for('config.config_delete', id=config.id) }}">
+                    <i class="fas fa-trash-alt"></i> Delete Config
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

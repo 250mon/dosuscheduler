@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Worker Detail{% endblock %}
+{% block content %}
+    <h1 class="my-4">Dosu Type Detail</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Dosu Type ID: {{ dosutype.id }}</h5>
+            <p class="card-text">Name: {{ dosutype.name }}</p>
+            <p class="card-text">Number of Slots: {{ dosutype.slot_quantity }}</p>
+            <p class="card-text">Price: {{ dosutype.price|format_currency }}</p>
+            <p class="card-text">Available: {{ dosutype.available }}</p>
+            <div id="action">
+                <a class="btn btn-primary"
+                   href="{{ url_for("dosutype.dosutype_list") }}">Dosu Type List</a>
+                <a class="btn btn-danger"
+                   href="{{ url_for('dosutype.dosutype_delete', id=dosutype.id) }}">Delete Dosu Type</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1 class="my-4">{{ '계정 정보 수정' if form.username.data else '새로운 계정 생성' }}</h1>
+    <form method="post" class="post-form">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <div class="form-group">
+            <label for="username">사용자 이름</label>
+            <input type="text"
+                   class="form-control"
+                   name="username"
+                   id="username"
+                   value="{{ form.username.data|default('', true) }}">
+        </div>
+        <div class="form-group mt-3">
+            <label for="password1">비밀번호</label>
+            <input type="password"
+                   class="form-control"
+                   name="password1"
+                   id="password1"
+                   value="{{ form.password1.data|default('', true) }}">
+        </div>
+        <div class="form-group mt-3">
+            <label for="password2">비밀번호 확인</label>
+            <input type="password"
+                   class="form-control"
+                   name="password2"
+                   id="password2"
+                   value="{{ form.password2.data|default('', true) }}">
+        </div>
+        <div class="form-group mt-3">
+            <label for="email">이메일</label>
+            <input type="text"
+                   class="form-control"
+                   name="email"
+                   id="email"
+                   value="{{ form.email.data|default('', true) }}">
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">생성하기</button>
+    </form>
+{% endblock %}

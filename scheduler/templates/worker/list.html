@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Worker List{% endblock %}
+{% block content %}
+    <h1 class="my-4">치료사 리스트</h1>
+    <a class="btn btn-primary mb-3"
+       href="{{ url_for("worker.worker_create") }}">Create New Worker</a>
+    <table class="table table-striped text-center">
+        <thead>
+            <tr>
+                <th scope="col">이 름</th>
+                <th scope="col">유 저</th>
+                <th scope="col">치료실</th>
+                <th scope="col">활성상태</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in workers %}
+                <tr class="text-center align-middle">
+                    <td>
+                        <a href="{{ url_for('worker.worker_detail', id=worker.id) }}">{{ worker.name }}</a>
+                    </td>
+                    <td>{{ worker.user.username }}</td>
+                    <td>{{ worker.room }}</td>
+                    <td>{{ worker.available }}</td>
+                    <td>
+                        <a class="btn btn-info btn-sm"
+                           href="{{ url_for('worker.worker_update', id=worker.id) }}">수정</a>
+                        <a class="btn btn-danger btn-sm"
+                           href="{{ url_for('worker.worker_delete', id=worker.id) }}">삭제</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

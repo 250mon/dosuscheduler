@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Update User{% endblock %}
+{% block content %}
+    <h1 class="my-4">Modify User Account</h1>
+    <form method="post">
+        {% include "form_errors.html" %}
+        {{ form.csrf_token }}
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.username.label }}</span>
+            {{ form.username(class="form-control", readonly=True) }}
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.password1.label }}</span>
+            {{ form.password1(type="password", class="form-control") }}
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.email.label }}</span>
+            {{ form.email(class="form-control") }}
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.privilege.label }}</span>
+            {{ form.privilege(class="form-select") }}
+        </div>
+        <div class="row mb-5 align-items-center">
+            <label class="col-md-2">{{ form.available.label }}</label>
+            <div class="col-sm-8 btn-group" role="group">
+                <input type="radio" class="btn-check" id="available_yes" name="available" value="yes" {{ 'checked' if form.available.data == 'True' or 'yes' }}>
+                <label class="btn btn-outline-primary" for="available_yes">Available</label>
+                <input type="radio" class="btn-check" id="available_no" name="available" value="no" {{ 'checked' if form.available.data == 'False' }}>
+                <label class="btn btn-outline-secondary" for="available_no">Not available</label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn btn-secondary" href="{{ url_for("auth.user_list") }}">Cancel</a>
+    </form>
+{% endblock %}

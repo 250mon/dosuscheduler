@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Select Patient{% endblock %}
+{% block content %}
+    <h1 class="my-4">도수 스케줄 생성</h1>
+    <!-- Include the search form partial -->
+    {% include "dosusess/_search_patient_form_in_create.html" %}
+    <!-- Include the create patient modal partial -->
+    {% include "patient/_create_patient_modal.html" %}
+    <!-- Results Table -->
+    <div id="search-patient-results" class="mt-4 mb-5">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">환자번호</th>
+                    <th scope="col">이 름</th>
+                    <th scope="col">성 별</th>
+                    <th scope="col">생 일</th>
+                    <th scope="col">전화번호</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                    <tr>
+                        <td>{{ patient.mrn }}</td>
+                        <td>
+                            <a href="{{ url_for('patient.patient_detail', id=patient.id, next=request.full_path) }}">{{ patient.name }}</a>
+                        </td>
+                        <td>{{ patient.sex }}</td>
+                        <td>{{ patient.birthday | format_birthday_date }}</td>
+                        <td>{{ patient.tel }}</td>
+                        <td>
+                            <button class="btn btn-primary"
+                                    id="pt-select-btn"
+                                    data-patient-id="{{ patient.id }}"
+                                    onclick="showDosuInfoInputBox(this)">선 택</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="dosusess-info-input" class="d-none">
+        <form action="{{ url_for("dosusess.dosusess_create") }}" method="post">
+            <!-- Include the CSRF token as a hidden input -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" id="patient-id-input" name="patient_id" />
+            <div class="input-group mb-3">
+                <span class="input-group-text">종 류</span>
+                <select type="number"
+                        class="form-select"
+                        id="dosutype-select"
+                        name="dosutype_id"
+                        required>
+                    {% for dosutype in dosutypes %}
+                        <option value={{ dosutype.id }}>{{ dosutype.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="input-group mb-5">
+                <span class="input-group-text">메 모</span>
+                <textarea class="form-control" name="note"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">생 성</button>
+            <a class="btn btn-secondary"
+               href="{{ url_for('dosusess.daily_list', year=dosusess_info.year, month=dosusess_info.month, day=dosusess_info.day) }}">취 소</a>
+        </form>
+    </div>
+    <script>
+      function showDosuInfoInputBox (btn) {
+        const dosuInfoInputContainer = document.getElementById("dosusess-info-input");
+        dosuInfoInputContainer.classList.remove("d-none");
+        
+        const patientId = btn.getAttribute("data-patient-id");
+        const patientIdInput = document.getElementById("patient-id-input");
+        patientIdInput.setAttribute("value", patientId)
+      }
+    </script>
+{% endblock %}

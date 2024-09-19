@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Create/Update Config{% endblock %}
+{% block content %}
+    <h1 class="my-4">{{ 'Update Config' if form.name.data else 'Create New Config' }}</h1>
+    <form method="post">
+        {% include "form_errors.html" %}
+        {{ form.csrf_token }}
+        <div class="input-group mb-3">
+            <span class="input-group-text">{{ form.name.label }}</span>
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="row mb-5 align-items-center">
+            <label class="col-md-2">{{ form.is_default.label.text }}</label>
+            <div class="col-sm-8 btn-group" role="group">
+                <input type="radio" class="btn-check" id="is_default_yes" name="is_default" value="yes" {{ 'checked' if form.is_default.data == 'True' or 'yes' }}>
+                <label class="btn btn-outline-primary" for="is_default_yes">설정적용</label>
+                <input type="radio" class="btn-check" id="is_default_no" name="is_default" value="no" {{ 'checked' if form.is_default.data == 'False' }}>
+                <label class="btn btn-outline-secondary" for="is_default_no">설정보류</label>
+            </div>
+        </div>
+        <div class="row mb-5">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text">{{ form.start_date.label }}</span>
+                    {{ form.start_date(class="form-control") }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text">{{ form.end_date.label }}</span>
+                    {{ form.end_date(class="form-control") }}
+                </div>
+            </div>
+        </div>
+        <div class="row mb-5">
+            <div class="col-md-6">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.wd_start_hour.label }}</span>
+                    {{ form.wd_start_hour(class="form-control") }}
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.wd_end_hour.label }}</span>
+                    {{ form.wd_end_hour(class="form-control", step="1800") }}
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.wd_lunch_start_hour.label }}</span>
+                    {{ form.wd_lunch_start_hour(class="form-control") }}
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.wd_lunch_end_hour.label }}</span>
+                    {{ form.wd_lunch_end_hour(class="form-control") }}
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.wd_overtime_hour.label }}</span>
+                    {{ form.wd_overtime_hour(class="form-control") }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.sd_start_hour.label }}</span>
+                    {{ form.sd_start_hour(class="form-control") }}
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.sd_end_hour.label }}</span>
+                    {{ form.sd_end_hour(class="form-control") }}
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.sd_overtime_hour.label }}</span>
+                    {{ form.sd_overtime_hour(class="form-control") }}
+                </div>
+                <hr class="table-group-divider my-4">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">{{ form.duration.label }}</span>
+                    {{ form.duration(class="form-select") }}
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">저장하기</button>
+        <a class="btn btn-secondary" href="{{ url_for("config.config_list") }}">취소</a>
+    </form>
+{% endblock %}

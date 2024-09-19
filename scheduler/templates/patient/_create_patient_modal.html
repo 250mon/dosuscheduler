@@ -1,0 +1,105 @@
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="createPatientModal"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">New Patient</h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <!-- Include the patient form partial -->
+        {% include "patient/_create_patient_form.html" %}
+      </div>
+      <div class="modal-footer">
+        <div id="pt-create-error"></div>
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="submitFormCreatePatient()"
+        >
+          Create
+        </button>
+        <button
+          type="button"
+          id="close-modal-btn"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+          onclick="closeClicked()"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div
+  id="form-data-container"
+  data-show-create-modal="{{ show_create_modal | lower }}"
+  data-form-data="{{ form_data }}"
+  data-error="{{ error }}"
+></div>
+
+<script>
+  $(document).ready(function () {
+    // When creating a patient fails, the modal keeps showing and
+    // the input fields are filled with the info a user submitted earlier
+    const formDataContainer = $("#form-data-container");
+    const showCreateModal = formDataContainer.data("show-create-modal");
+
+    if (showCreateModal) {
+      $("#createPatientModal").modal("show");
+      const ptData = formDataContainer.data("form-data");
+      const errorMsg = formDataContainer.data("error");
+
+      if (ptData) {
+        $("#pt-create-mrn").val(ptData.mrn);
+        $("#pt-create-name").val(ptData.name);
+        $("#pt-create-sex").val(ptData.sex);
+        $("#pt-create-birthday").val(ptData.birthday);
+        $("#pt-create-tel").val(ptData.tel);
+        $("#pt-create-note").text(ptData.note);
+        $("#pt-create-error")
+          .addClass("alert")
+          .addClass("alert-warning")
+          .attr("role", "alert")
+          .text(errorMsg);
+      }
+    }
+  });
+
+  function submitFormCreatePatient() {
+    const form = document.getElementById("createPatientForm");
+    if (form.checkValidity()) {
+      form.submit();
+    } else {
+      form.reportValidity();
+    }
+  }
+
+  function closeClicked() {
+    // Redirect to the starting page when clicking the 'Close' button
+    // The next page may be `/patients/' or '/dosusess/select_patient_to_create_dosusess`
+    // But there will be none for the next page if a user clicks the close btn
+    // right after clicking 'New patient' without a submit
+    const nextUrl = $("#form-data-container").data("next");
+    if (nextUrl) {
+      window.location.href = nextUrl;
+    }
+  }
+</script>
