@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Monthly Schedule{% endblock %}
+<!-- Adding custom CSS specifically for this template -->
+{% block extra_head %}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='styles_monthly_dark.css') }}" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="csrf_token" content="{{ csrf_token() }}" />
+{% endblock %}
+{% block content %}
+    <div class="monthly-container">
+        <div class="calendar-container"
+             data-year="{{ year }}"
+             data-month="{{ month }}">
+            <div class="month-selector">
+                <button id="prev-year">&lt;&lt;</button>
+                <button id="prev-month">&lt;</button>
+                <div class="month-display" id="month-display"></div>
+                <button id="next-month">&gt;</button>
+                <button id="next-year">&gt;&gt;</button>
+            </div>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="day-name">일</div>
+                    <div class="day-name">월</div>
+                    <div class="day-name">화</div>
+                    <div class="day-name">수</div>
+                    <div class="day-name">목</div>
+                    <div class="day-name">금</div>
+                    <div class="day-name">토</div>
+                </div>
+                <div class="calendar-body">
+                    <!-- JavaScript will populate this -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script_monthly.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}
+    Delete {{ entity_type }}
+{% endblock
+%}
+{% block content %}
+    <h1 class="my-4">Delete {{ entity_type }}</h1>
+    <div class="alert alert-danger">
+        <p>Are you sure you want to delete {{ entity_name }}?</p>
+        <form action="{{ url_for(entity_delete_url, id=entity_id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" id="confirm" name="confirm" value="no" />
+            <button class="btn btn-danger"
+                    type="submit"
+                    id="delete-btn"
+                    data-need-confirm="{{ need_confirm }}">Delete</button>
+            <a class="btn btn-secondary" href="{{ url_for(entity_list_url) }}">Cancel</a>
+        </form>
+    </div>
+    <script>
+        document.getElementById('delete-btn').addEventListener('click', function (event) {
+            const need_confirm = this.getAttribute('data-need-confirm');
+            console.log(need_confirm);
+            if (need_confirm === "True") {
+                // Show confirmation dialog
+                const confirmation = window.confirm("데이타가 있습니다. 정말 삭제하시겠습니까?");
+                if (!confirmation) {
+                    // If user clicks "Cancel", prevent form submission
+                    event.preventDefault();
+                } else {
+                    const confirmEl = document.getElementById('confirm');
+                    confirmEl.setAttribute('value', 'yes');
+                }
+            }
+        });
+    </script>
+{% endblock %}

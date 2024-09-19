@@ -1,0 +1,235 @@
+/* Style for the body element */
+.monthly-container {
+  font-family: "Arial", sans-serif; /* Use Arial font */
+  background-color: #f4f4f9; /* Light gray background color */
+  margin: 0; /* Remove default margin */
+  display: flex; /* Use flexbox layout */
+  flex-direction: column; /* Arrange children in a column */
+  align-items: center; /* Center align items horizontally */
+  height: 100vh; /* Full viewport height */
+}
+
+/* Container for the calendar and month selector */
+.calendar-container {
+  width: 100%; /* Full width */
+  max-width: 1200px; /* Maximum width */
+}
+
+/* Style for the month and year selector */
+.month-selector {
+  margin: 20px; /* Margin around the selector */
+  text-align: center; /* Center the text */
+  display: flex; /* Use flexbox layout */
+  justify-content: center; /* Center align items horizontally */
+  align-items: center; /* Center align items vertically */
+}
+
+/* Style the month and year selector buttons and display */
+.month-selector button {
+  background-color: #4a90e2; /* Stylish blue background */
+  color: #fff; /* White text */
+  border: none; /* No border */
+  padding: 10px 20px; /* Padding */
+  margin: 0 5px; /* Margin between buttons */
+  font-size: 2vw; /* Font size */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+.month-selector button:hover {
+  background-color: #357abd; /* Darker blue on hover */
+}
+
+.month-display {
+  color: darkblue;
+  font-size: 3vw; /* Font size */
+  font-weight: bold; /* Bold text */
+  margin: 0 10px; /* Margin between date and buttons */
+  min-width: 150px; /* Minimum width to ensure consistent spacing */
+}
+
+/* Style for the calendar */
+.calendar {
+  background: #fff; /* White background */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden; /* Clip overflow content */
+  transition: transform 0.3s ease-in-out; /* Smooth transform transition */
+}
+
+/* Hover effect for the calendar */
+.calendar:hover {
+  transform: scale(1.02); /* Slightly scale up the calendar on hover */
+}
+
+/* Style for the calendar header */
+.calendar-header {
+  display: grid; /* Use grid layout */
+  grid-template-columns: repeat(7, 1fr); /* 7 equal columns */
+  background-color: #4a90e2; /* Stylish blue background */
+  color: #fff; /* White text */
+  padding: 10px 0; /* Vertical padding */
+  text-align: center; /* Center text */
+  font-size: 2vw;
+  font-weight: bold; /* Bold text */
+  text-transform: uppercase; /* Uppercase text */
+  letter-spacing: 1px; /* Spacing between letters */
+}
+
+/* Style for day names in the calendar header */
+.day-name {
+  padding: 10px 0; /* Vertical padding */
+}
+
+/* Style for the calendar body */
+.calendar-body {
+  display: grid; /* Use grid layout */
+  grid-template-columns: repeat(7, 1fr); /* 7 equal columns */
+  grid-auto-rows: 150px; /* Adjusted row height */
+}
+
+/* Style for each day cell */
+.day-cell {
+  border: 1px solid #e0e0e0; /* Light gray border */
+  display: flex; /* Use flexbox layout */
+  flex-direction: column; /* Arrange children in a column */
+  position: relative; /* Relative positioning */
+  overflow: visible; /* Overflow is visible*/
+  background-color: #fdfdfd; /* Very light gray background */
+  transition: background-color 0.3s ease-in-out; /* Smooth background color transition */
+}
+
+/* Hover effect for day cells */
+.day-cell:hover {
+  background-color: aliceblue; /* Slightly darker background on hover */
+}
+
+/* Style for the day number */
+.day-number {
+  position: absolute; /* Absolute positioning */
+  top: 0px; /* 10px from the top */
+  right: 0px; /* 10px from the right */
+  background: rgba(255, 255, 255, 0.4); /* Semi-transparent white background */
+  padding: 0px 10px; /* Padding */
+  border-radius: 50%; /* Rounded corners */
+  font-size: 1.5vw;
+  font-weight: bold; /* Bold text */
+  color: #4a90e2; /* Stylish blue text */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  cursor: pointer; /* Pointer cursor on hover */
+  z-index: 10;
+}
+
+/* To prevent the day numbers from hiding the time segments */
+.day-number:hover {
+  pointer-events: none;
+}
+
+/* Style for the time group */
+.day-container {
+  flex: 1; /* Flexible grow and shrink */
+  margin: 7px 1px;
+  display: flex; /* Use flexbox layout */
+  flex-direction: column; /* Arrange children in a column */
+  position: relative;
+  overflow: visible; /* Overflow is visible*/
+  background-color: inherit; /* inherit from day-cell */
+  transition: background-color 0.3s ease-in-out; /* Smooth background color transition */
+}
+
+/* Style for the time group */
+.room-container {
+  flex: 1; /* Flexible grow and shrink */
+  padding: 5px 0px;
+  display: flex; /* Use flexbox layout */
+  flex-direction: column; /* Arrange children in a column */
+  justify-content: flex-start;
+}
+
+/* Adjust the height and other styles as needed */
+.time-bar {
+  display: flex; /* Use flexbox layout */
+  flex-direction: row; /* Arrange children in a row */
+  height: 30%; /* Height of each time bar */
+  margin: 1px 0px;
+}
+
+.time-segment {
+  position: relative;
+  flex: 1; /* Flexible grow and shrink */
+  border-left: 1px solid #e0e0e0; /* Left border */
+  background-color: #f7f7f7; /* Light gray background */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.room1 .time-segment.active {
+  background-color: red;
+}
+
+.room2 .time-segment.active {
+  background-color: lime;
+}
+
+.room1 .time-segment.inactive,
+.room2 .time-segment.inactive {
+  background-color: lightgray;
+}
+
+.room1 .time-segment.disabled,
+.room2 .time-segment.disabled {
+  background-color: darkgray;
+}
+
+.room1 .time-segment.canceled {
+  background-color: darkred;
+}
+
+.room2 .time-segment.canceled {
+  background-color: darkgreen;
+}
+
+.room1 .time-segment.noshow {
+  background-color: goldenrod;
+}
+
+.room2 .time-segment.noshow {
+  background-color: olive;
+}
+
+.time-segment .tooltiptext {
+  visibility: hidden;
+  width: 160px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 10px;
+  position: absolute;
+  z-index: 10; /* Ensure tooltip is on top */
+  bottom: 125%; /* Position slightly over the element */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+
+.time-segment .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.time-segment:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
+}

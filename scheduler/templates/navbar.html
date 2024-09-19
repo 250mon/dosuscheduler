@@ -1,0 +1,179 @@
+<nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Danaul</a>
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       id="navbarDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">도 수</a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for("main.monthly") }}">도수 스케줄</a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for("patient.patient_list") }}">환자 리스트</a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       id="navbarDropdown"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">설 정</a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li class="dropdown-item">
+                            {% if status_filter %}
+                                <form id="status-filter-form"
+                                      action="{{ url_for('dosusess.status_settings', next=request.full_path) }}"
+                                      method="post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="new-status"
+                                               id="status-active-radio"
+                                               value="active"
+                                               {% if status_filter == 'active' %}checked{% endif %}>
+                                        <label class="form-check-label" for="status-active-radio">Active</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="new-status"
+                                               id="status-canceled-radio"
+                                               value="canceled"
+                                               {% if status_filter == 'canceled' %}checked{% endif %}>
+                                        <label class="form-check-label" for="status-canceled-radio">Canceled</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="new-status"
+                                               id="status-noshow-radio"
+                                               value="noshow"
+                                               {% if status_filter == 'noshow' %}checked{% endif %}>
+                                        <label class="form-check-label" for="status-noshow-radio">No Show</label>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                    </ul>
+                </li>
+                {% if g.user.privilege == 5 %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">기본설정</a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for("worker.worker_list") }}">치료사 리스트</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for("dosutype.dosutype_list") }}">치료 종류</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for("config.config_list") }}">시간 설정</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for("auth.user_list") }}">계정 설정</a>
+                            </li>
+                        </ul>
+                    </li>
+                {% elif g.user %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">기본설정</a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item"
+                                   href="{{ url_for("auth.update", user_id=g.user.id) }}">계정 설정</a>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+                {% if g.user.privilege == 5 %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">통 계</a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for("stats.patient_stats") }}">환자 통계</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for("stats.worker_stats") }}">치료사 통계</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                        </ul>
+                    </li>
+                {% elif g.user %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           id="navbarDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">기본설정</a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item"
+                                   href="{{ url_for("auth.update", user_id=g.user.id) }}">계정 설정</a>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+                {% if g.user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for("auth.logout") }}"><span>{{ g.user.username }}</span> 로그아웃</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for("auth.signup") }}">계정생성</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for("auth.login") }}">로그인</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
