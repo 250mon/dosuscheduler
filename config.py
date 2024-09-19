@@ -2,6 +2,6 @@ import os
 
 BASE_DIR = os.path.dirname(__file__)
 
-SQLALCHEMY_DATABASE_URI = "sqlite:///{}".format(os.path.join(BASE_DIR, "scheduler.db"))
+SQLALCHEMY_DATABASE_URI = "sqlite:///{}".format(os.path.join(BASE_DIR, "dosu.db"))
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = "dev"

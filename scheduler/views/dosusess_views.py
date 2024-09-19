@@ -143,8 +143,6 @@ def dosusess_create():
             return e, 404
         note = request.form.get("note", "")
 
-        print(f"DosuSess: creating {sess_date} {room} {slot} ...")
-
         # Get the dosutype of the id
         dosutype = db.session.execute(
             db.select(DosuType).filter_by(id=dosutype_id)
@@ -168,10 +166,10 @@ def dosusess_create():
                 )
             ).scalar_one_or_none()
             if existing_dosusess:
-                print(
-                    f"DosuSess: Failed creating {sess_date} {room} {slot}: Occupied slot selected!!:"
-                )
-                print(f"Existing DosuSesses: {existing_dosusess}")
+                # print(
+                #     f"DosuSess: Failed creating {sess_date} {room} {slot}: Occupied slot selected!!:"
+                # )
+                # print(f"Existing DosuSesses: {existing_dosusess}")
                 flash("이미 예약된 시간과 중복됩니다!!!")
                 return redirect(
                     url_for(
@@ -218,11 +216,9 @@ def dosusess_create():
                 dosusess.timeslot_set.append(timeslot)
             db.session.add(dosusess)
             db.session.commit()
-            print(f"DosuSess: Success creating {sess_date} {room} {slot}")
         except Exception as e:
             db.session.rollback()
             flash(f"Failed creating {sess_date} {room} {slot}: {e}")
-            print(f"DosuSess: Failed creating {sess_date} {room} {slot}: {e}:")
 
         return redirect(
             url_for(

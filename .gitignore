@@ -9,6 +9,8 @@
 !requirements.txt
 !Procfile
 !*.py
+!*.js
+!*.html
 !*.ipynb
 !*.yaml
 !**/scheduler/static/*
