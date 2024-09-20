@@ -24,4 +24,4 @@
 __pycache__/
 instance/
 migrations/
-config/development.py
+config/production.py
