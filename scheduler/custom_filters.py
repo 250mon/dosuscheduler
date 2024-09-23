@@ -6,24 +6,14 @@ from flask import Blueprint
 bp = Blueprint("filters", __name__)
 
 
-def format_kr_date(value):
+def format_kr_date(_date: date):
     """
     When a value is a datetime or date, get a weekday in korean
     """
-    if isinstance(value, (datetime, date)):
-        custom_weekdays = {
-            "Monday": "월",
-            "Tuesday": "화",
-            "Wednesday": "수",
-            "Thursday": "목",
-            "Friday": "금",
-            "Saturday": "토",
-            "Sunday": "일",
-        }
-        formatted_date = value.strftime("%m.%d %A").lstrip("0").replace(".0", ".")
-        weekday = value.strftime("%A")
-        return formatted_date.replace(weekday, custom_weekdays.get(weekday, weekday))
-    return value
+    weekdays = ["일", "월", "화", "수", "목", "금", "토"]
+    weekday = weekdays[_date.weekday()]
+    str_date = _date.strftime("%Y-%m-%d")
+    return f"{str_date} ({weekday})"
 
 
 def format_birthday_date(value):

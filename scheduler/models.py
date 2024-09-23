@@ -12,6 +12,7 @@ from sqlalchemy import (
     String,
     Text,
     Time,
+    UniqueConstraint,
     and_,
     or_,
 )
@@ -19,6 +20,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from scheduler import db
+from scheduler.custom_filters import format_kr_date
 
 
 class Worker(db.Model):
@@ -162,6 +164,7 @@ class TimeSlot(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     date_id: Mapped[int] = mapped_column(Integer, ForeignKey("date_table.id"))
+    room: Mapped[int] = mapped_column(Integer)
     number: Mapped[int] = mapped_column(Integer)
 
     date: Mapped["DateTable"] = relationship(back_populates="timeslot_set")
@@ -169,14 +172,22 @@ class TimeSlot(db.Model):
         secondary="session_slot_table", back_populates="timeslot_set"
     )
 
+    # Add composite unique constraint
+    __table_args__ = (
+        UniqueConstraint(
+            "date_id", "room", "number", name="unique_timeslot_constraint"
+        ),
+    )
+
     def __repr__(self):
-        return f"TimeSlot(id={self.id!r}, date_id={self.date_id!r}, number={self.number!r})"
+        return f"TimeSlot(id={self.id!r}, date_id={self.date_id!r}, room={self.room!r}, number={self.number!r})"
 
 
 class DosuSess(db.Model):
     __tablename__ = "dosu_session_table"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # room, slot, dosusess_date is the info about the first timeslot of the timeslot_set
     room: Mapped[int] = mapped_column(Integer)
     slot: Mapped[int] = mapped_column(Integer)
     dosusess_date: Mapped[date] = mapped_column(Date)
@@ -261,16 +272,20 @@ def display_date(_date: date):
 
 
 def display_slot(_date: date, slot: int):
+    """
+    Converts date and slot number into a slot hour for display
+    """
     tsc = get_timeslot_config(_date.year, _date.month)
-    slot_dt = (
+    slot_hour = (
         datetime.combine(datetime.today(), tsc.wd_start_hour)
         + timedelta(minutes=tsc.duration) * slot
     )
-    if _date.weekday() != 5 and slot_dt.time() > tsc.wd_lunch_start_hour:
+    if _date.weekday() != 5 and slot_hour.time() > tsc.wd_lunch_start_hour:
         dt_end = datetime.combine(datetime.today(), tsc.wd_lunch_end_hour)
         dt_start = datetime.combine(datetime.today(), tsc.wd_lunch_start_hour)
-        slot_dt -= dt_end - dt_start
-    return slot_dt.time().strftime("%H:%M")
+        slot_hour -= dt_end - dt_start
+
+    return slot_hour.time().strftime("%H:%M")
 
 
 def format_dosusess_detail(row):
@@ -278,7 +293,7 @@ def format_dosusess_detail(row):
     sess = {
         "id": row.DosuSess.id,
         "date": row.DosuSess.dosusess_date,
-        "date_display": display_date(row.DosuSess.dosusess_date),
+        "date_display": format_kr_date(row.DosuSess.dosusess_date),
         "room": row.DosuSess.room,
         "slot": row.DosuSess.slot,
         "slot_display": display_slot(row.DosuSess.dosusess_date, row.DosuSess.slot),
