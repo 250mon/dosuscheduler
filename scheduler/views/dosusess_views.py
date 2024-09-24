@@ -150,27 +150,20 @@ def dosusess_create():
         if not dosutype:
             return "Dosutype not found", 404
 
-        # Check if the time slot is available
-        # by checking any active dosusess on the slots of the day
+        # Check if the time slot is already created
+        # It means that it is already assigned to another dosusess
         quantity = dosutype.slot_quantity
         date_obj, is_new_day = get_or_create(DateTable, date=sess_date)
         if not is_new_day:
-            existing_dosusess = db.session.execute(
-                db.select(DosuSess)
-                .join(DosuSess.timeslot_set)
-                .filter(
+            ts = db.session.execute(
+                db.select(TimeSlot).filter(
                     TimeSlot.date_id == date_obj.id,
                     TimeSlot.room == room,
                     TimeSlot.number >= slot,
                     TimeSlot.number < slot + quantity,
-                    DosuSess.status == "active",
                 )
-            ).scalar_one_or_none()
-            if existing_dosusess:
-                # print(
-                #     f"DosuSess: Failed creating {sess_date} {room} {slot}: Occupied slot selected!!:"
-                # )
-                # print(f"Existing DosuSesses: {existing_dosusess}")
+            ).scalar()
+            if ts:
                 flash("이미 예약된 시간과 중복됩니다!!!")
                 return redirect(
                     url_for(
@@ -181,10 +174,6 @@ def dosusess_create():
                     )
                 )
 
-        new_timeslots = [
-            get_or_create(TimeSlot, date_id=date_obj.id, room=room, number=(slot + i))
-            for i in range(quantity)
-        ]
         # Get the patient of the id
         patient = db.session.execute(
             db.select(Patient).filter_by(id=patient_id)
@@ -214,8 +203,14 @@ def dosusess_create():
                 status="active",
                 note=note,
             )
-            for timeslot in new_timeslots:
-                dosusess.timeslot_set.append(timeslot)
+            for slot_number in range(slot, slot + quantity):
+                ts = TimeSlot(
+                    date_id=date_obj.id,
+                    room=room,
+                    number=slot_number,
+                    dosusess=dosusess,
+                )
+                dosusess.timeslot_set.append(ts)
             db.session.add(dosusess)
             db.session.commit()
         except Exception as e:
@@ -254,10 +249,14 @@ def dosusess_update():
         # theses are the data that are always included in the post req
         status = request.form.get("status", "")
         note = request.form.get("note", "")
+        dosusess.status = status
+        dosusess.note = note
 
-        # if the req is changing the shcedule, there is more data comming together
-        if _date := request.form.get("dosusess_date", ""):
+        # if the current status_filter is set to 'active' and the status is 'active',
+        # it means that the update is about changing the shcedule
+        if session.get("status_filter") == "active" and status == "active":
             try:
+                _date = request.form.get("dosusess_date", "")
                 sess_date = datetime.strptime(_date, "%Y-%m-%d").date()
                 dosutype_id = int(request.form.get("dosutype_id", ""))
                 room = int(request.form.get("room", ""))
@@ -270,66 +269,41 @@ def dosusess_update():
             ).scalar_one_or_none()
             if not dosutype:
                 return "Dosutype not found", 404
-
-            # Check for existing active session with the same date, room, slot, and quantity
             quantity = dosutype.slot_quantity
+            # Check if the time slot is already created
+            # It means that it is already assigned to another dosusess
             date_obj, is_new_day = get_or_create(DateTable, date=sess_date)
             if not is_new_day:
-                existing_dosusess = db.session.execute(
-                    db.select(DosuSess)
-                    .join(DosuSess.timeslot_set)
-                    .filter(
+                ts = db.session.execute(
+                    db.select(TimeSlot).filter(
                         TimeSlot.date_id == date_obj.id,
                         TimeSlot.room == room,
                         TimeSlot.number >= slot,
                         TimeSlot.number < slot + quantity,
-                        DosuSess.status == "active",
+                        TimeSlot.dosusess_id != id,  # ok with selecting the self slots
                     )
-                ).scalar_one_or_none()
-                if existing_dosusess:
-                    # print(
-                    #     f"DosuSess: Failed creating {sess_date} {room} {slot}: Occupied slot selected!!:"
-                    # )
-                    # print(f"Existing DosuSesses: {existing_dosusess}")
+                ).scalar()
+                if ts:
                     flash("이미 예약된 시간과 중복됩니다!!!")
-                    dosusess_detail = get_dosusess_detail_by_id(id)
-                    dosutypes = db.session.execute(
-                        db.select(DosuType).filter(DosuType.available)
-                    ).scalars()
-                    return render_template(
-                        "dosusess/update.html",
-                        dosusess=dosusess_detail,
-                        dosutypes=dosutypes,
-                        next=next_url,
+                    return redirect(
+                        url_for(
+                            "dosusess.daily_list",
+                            year=sess_date.year,
+                            month=sess_date.month,
+                            day=sess_date.day,
+                        )
                     )
-
-            # check_slot = DosuSess.slot == slot
-            # if quantity > 1:
-            #     check_slot = or_(*(DosuSess.slot == slot + i for i in range(quantity)))
-            # existing_timeslot = db.session.execute(
-            #     db.select(DosuSess).filter(
-            #         DosuSess.dosusess_date == sess_date,
-            #         DosuSess.room == room,
-            #         check_slot,
-            #         DosuSess.status == "active",
-            #         DosuSess.id != id,
-            #     )
-            # ).scalar()
-            #
-            # if existing_timeslot:
-            #     return render_template(
-            #         "dosusess/update.html",
-            #         dosusess=dosusess,
-            #         error="A session already exists.",
-            #     )
-
-            new_timeslots = [
-                # get_or_create(
-                #     TimeSlot, date_id=date_obj.id, room=room, number=(slot + i)
-                # )
-                TimeSlot(date_id=date_obj.id, room=room, number=(slot + i))
-                for i in range(quantity)
-            ]
+            # replace the old timeslots with the new ones
+            dosusess.timeslot_set = []
+            for slot_number in range(slot, slot + quantity):
+                ts, _ = get_or_create(
+                    TimeSlot,
+                    date_id=date_obj.id,
+                    room=room,
+                    number=slot_number,
+                    dosusess=dosusess,
+                )
+                dosusess.timeslot_set.append(ts)
 
             worker = db.session.scalar(
                 db.select(Worker)
@@ -344,22 +318,25 @@ def dosusess_update():
             dosusess.room = room
             dosusess.slot = slot
             dosusess.worker_id = worker.id
-            dosusess.timeslot_set = []
-            for timeslot in new_timeslots:
-                dosusess.timeslot_set.append(timeslot)
-
-        dosusess.status = status
-        dosusess.note = note
+        # if the current status_filter is set to 'noshow' or 'canceled' and
+        # the status is 'active', it means that the update is about changing
+        # the non-active dosusess to an active one
+        elif session.get("status_filter") != "active" and status == "active":
+            session["status_filter"] = "active"
+            return render_update_html(id, next_url)
 
         try:
             # Commit changes to the database
             db.session.commit()
-            print(new_timeslots)
             return redirect(next_url)
         except Exception as e:
             db.session.rollback()
             flash(f"dosusess: Failed updating {id}: {e}")
 
+    return render_update_html(id, next_url)
+
+
+def render_update_html(id, next_url):
     dosusess_detail = get_dosusess_detail_by_id(id)
     dosutypes = db.session.execute(
         db.select(DosuType).filter(DosuType.available)

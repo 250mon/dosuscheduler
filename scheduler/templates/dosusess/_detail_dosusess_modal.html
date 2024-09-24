@@ -1,68 +1,46 @@
 <!-- Modal -->
-<div
-  class="modal fade"
-  id="detailDosuSessModal"
-  data-bs-backdrop="static"
-  data-bs-keyboard="false"
-  tabindex="-1"
-  aria-labelledby="staticBackdropLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">세부 사항</h1>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <!-- Include the dosusess form partial -->
-        {% include "dosusess/_detail_dosusess_form.html" %}
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          id="detail-modal-save-btn"
-          class="btn btn-primary"
-          onclick="submitSaveDosuSess()"
-        >
-          저장
-        </button>
-        <a
-          class="btn btn-warning"
-          id="detail-modal-update-btn"
-          href="{{ url_for('dosusess.dosusess_update', id=0, next=request.full_path) }}"
-          >스케줄변경
-        </a>
-        <form
-          action="{{ url_for('dosusess.dosusess_delete') }}"
-          method="post"
-          class="d-inline"
-          onsubmit="return confirmDelete()"
-        >
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" id="modal-delete-id" name="id" value="" />
-          <input type="hidden" name="next" value="{{ request.full_path }}" />
-          <button
-            class="btn btn-danger"
-            id="detail-modal-delete-btn"
-            type="submit"
-          >
-            삭 제
-          </button>
-        </form>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Close
-        </button>
-      </div>
+<div class="modal fade"
+     id="detailDosuSessModal"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     tabindex="-1"
+     aria-labelledby="staticBackdropLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">세부 사항</h1>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Include the dosusess form partial -->
+                {% include "dosusess/_detail_dosusess_modal_body.html" %}
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        id="detail-modal-save-btn"
+                        class="btn btn-primary"
+                        onclick="submitSaveDosuSess()">저장</button>
+                <a class="btn btn-warning"
+                   id="detail-modal-update-btn"
+                   href="{{ url_for('dosusess.dosusess_update', id=0, next=request.full_path) }}">세부사항변경</a>
+                <form action="{{ url_for("dosusess.dosusess_delete") }}"
+                      method="post"
+                      class="d-inline"
+                      onsubmit="return confirmDelete()">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <input type="hidden" id="modal-delete-id" name="id" value="" />
+                    <input type="hidden" name="next" value="{{ request.full_path }}" />
+                    <button class="btn btn-danger" id="detail-modal-delete-btn" type="submit">삭 제</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
-
 <script>
   function submitSaveDosuSess() {
     const form = document.getElementById("updateDetailForm");

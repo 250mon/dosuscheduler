@@ -8,7 +8,6 @@
           action="{{ url_for('dosusess.dosusess_update', id=dosusess.id, next=next) }}"
           method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <!-- Basic patient info -->
         <div class="col mb-5">
             <table class="table table-striped">
                 <tr>
@@ -43,6 +42,7 @@
                 </tr>
             </table>
         </div>
+        <div id="info-id" data-dosusess-id="{{ dosusess.id }}"></div>
         <input type="hidden"
                id="update-room"
                name="room"

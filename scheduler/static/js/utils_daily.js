@@ -160,7 +160,8 @@ export const generateTable = (
     for (let { slotIndex, hour, timeDisplay, divider } of slotGen) {
       if (divider) {
         $("<hr>")
-          .css({ height: "5px", backgroundColor: "#ffee58", border: "none" })
+          .addClass("divider")
+          // .css({ height: "5px", backgroundColor: "#ffee58", border: "none" })
           .appendTo(roomContainer);
       }
 

@@ -40,6 +40,7 @@ const applyScheduleData = (schedule) => {
   handleAvailableSlotClick.handler_fn = realSlotClickHandler;
   $.each(schedule, (index, dosusessEntry) => {
     const {
+      id,
       date,
       room,
       slot,
@@ -48,7 +49,6 @@ const applyScheduleData = (schedule) => {
       patient_name,
       note,
       status,
-      id,
     } = dosusessEntry;
 
     const sess_date = new Date(date);
@@ -80,7 +80,7 @@ const applyScheduleData = (schedule) => {
       .addClass("note-display")
       .appendTo(dosusessContainer);
 
-    // Apply the color based on the status
+    // make the timeslots assigned to the schedule unavailable
     switch (status) {
       case "active":
         timeSlotDiv.removeClass("available").addClass("status-active");
@@ -95,7 +95,7 @@ const applyScheduleData = (schedule) => {
       case "noshow":
         timeSlotDiv.removeClass("empty").addClass("status-noshow");
         break;
-      default:
+      default: // not reach here
         timeSlotDiv.addClass("status-default");
         break;
     }

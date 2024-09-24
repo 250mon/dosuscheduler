@@ -29,25 +29,27 @@ const realSlotClickHandler = (event, timeSlot) => {
 
 const applyScheduleData = (schedule) => {
   handleAvailableSlotClick.handler_fn = realSlotClickHandler;
+  const update_dosusess_id = $("#info-id").data("dosusess-id");
   $.each(schedule, (index, dosusessEntry) => {
-    const { date, room, slot, slot_quantity, patient_name, status } =
+    const { id, date, room, slot, slot_quantity, patient_name, status } =
       dosusessEntry;
 
     const sess_date = new Date(date);
-    const year = sess_date.getFullYear();
-    const month = sess_date.getMonth() + 1;
-    const day = sess_date.getDate();
     const timeSlot = { date: sess_date, room: room, slot: slot };
 
     const roomContainer = room === 1 ? $("#room1") : $("#room2");
     // take slot_quantity
     let timeSlotDiv = roomContainer.find(`#slot${slot}`);
     const timeSlots = [timeSlot];
-    for (let i = 1; i < slot_quantity; i++) {
-      const additionalTSDiv = roomContainer.find(`#slot${slot + i}`);
-      timeSlotDiv = timeSlotDiv.add(additionalTSDiv);
-      const additionalTS = { date: sess_date, room: room, slot: slot + i };
-      timeSlots.push(additionalTS);
+    // if the dosusessEntry is the dosusess to update,
+    // its additional time slots shoud be available slots
+    if (id !== update_dosusess_id) {
+      for (let i = 1; i < slot_quantity; i++) {
+        const additionalTSDiv = roomContainer.find(`#slot${slot + i}`);
+        timeSlotDiv = timeSlotDiv.add(additionalTSDiv);
+        const additionalTS = { date: sess_date, room: room, slot: slot + i };
+        timeSlots.push(additionalTS);
+      }
     }
 
     const dosusessContainer = timeSlotDiv.find(".dosusess-container");
@@ -57,7 +59,7 @@ const applyScheduleData = (schedule) => {
       .addClass("patient-name-display")
       .appendTo(dosusessContainer);
 
-    // Apply the color based on the status
+    // make the timeslots assigned to the schedule unavailable
     switch (status) {
       case "active":
         timeSlotDiv.removeClass("available").addClass("status-active");
@@ -66,7 +68,7 @@ const applyScheduleData = (schedule) => {
           timeSlotDiv.off("click", clickHandler);
         }
         break;
-      default:
+      default: // not reach here
         timeSlotDiv.addClass("status-default");
         break;
     }

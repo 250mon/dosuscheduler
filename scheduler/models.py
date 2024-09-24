@@ -14,6 +14,7 @@ from sqlalchemy import (
     Time,
     UniqueConstraint,
     and_,
+    event,
     or_,
 )
 from sqlalchemy.exc import IntegrityError
@@ -144,21 +145,6 @@ class TimeSlotConfig(db.Model):
         return f"TimeSlotConfig(id={self.id!r} name={self.name!r})"
 
 
-_session_slot_table = db.Table(
-    "session_slot_table",
-    db.Column(
-        "dosusess_id",
-        db.ForeignKey("dosu_session_table.id"),
-        primary_key=True,
-    ),
-    db.Column(
-        "timeslot_id",
-        db.ForeignKey("timeslot_table.id"),
-        primary_key=True,
-    ),
-)
-
-
 class TimeSlot(db.Model):
     __tablename__ = "timeslot_table"
 
@@ -166,11 +152,12 @@ class TimeSlot(db.Model):
     date_id: Mapped[int] = mapped_column(Integer, ForeignKey("date_table.id"))
     room: Mapped[int] = mapped_column(Integer)
     number: Mapped[int] = mapped_column(Integer)
+    dosusess_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("dosu_session_table.id")
+    )
 
     date: Mapped["DateTable"] = relationship(back_populates="timeslot_set")
-    dosusess_set: Mapped[List["DosuSess"]] = relationship(
-        secondary="session_slot_table", back_populates="timeslot_set"
-    )
+    dosusess: Mapped["DosuSess"] = relationship(back_populates="timeslot_set")
 
     # Add composite unique constraint
     __table_args__ = (
@@ -206,22 +193,18 @@ class DosuSess(db.Model):
     patient: Mapped["Patient"] = relationship(back_populates="dosusess_set")
     worker: Mapped["Worker"] = relationship(back_populates="dosusess_set")
     timeslot_set: Mapped[List["TimeSlot"]] = relationship(
-        secondary="session_slot_table", back_populates="dosusess_set"
+        back_populates="dosusess", cascade="all, delete-orphan"
     )
-
-    # __table_args__ = (
-    #     Index(
-    #         "unique_active_sessions",
-    #         "dosusess_date",
-    #         "room",
-    #         "slot",
-    #         unique=True,
-    #         postgresql_where=(status == "active"),
-    #     ),
-    # )
 
     def __repr__(self) -> str:
         return f"DosuSess(id={self.id!r}, date={self.dosusess_date!r})"
+
+
+# Changing from active to others will trigger the deletion of associated TimeSlots
+@event.listens_for(DosuSess.status, "set")
+def dosusess_status_listener(target, value, oldvalue, initiator):
+    if oldvalue == "active" and value in ["canceled", "noshow"]:
+        target.timeslot_set = []
 
 
 class User(db.Model):
@@ -314,16 +297,21 @@ def format_dosusess_detail(row):
     return sess
 
 
-def get_data_by_date(dosusess_date: date):
+def get_data_by_date(
+    target_date: date,
+):  # Subquery to get all TimeSlots for the target date
+    timeslot_subquery = (
+        db.select(TimeSlot.dosusess_id)
+        .join(DateTable, TimeSlot.date_id == DateTable.id)
+        .where(DateTable.date == target_date)
+        .subquery()
+    )
     stmt = (
         db.select(DosuSess, DosuType, Worker, Patient)
-        .join(DosuType, DosuSess.dosutype_id == DosuType.id)
-        .join(Patient, DosuSess.patient_id == Patient.id)
-        .join(Worker, DosuSess.worker_id == Worker.id)
-        .filter(
-            DosuSess.dosusess_date == dosusess_date,
-            DosuSess.status == session.get("status_filter", "active"),
-        )
+        .join(DosuSess.dosutype)
+        .join(DosuSess.patient)
+        .join(DosuSess.worker)
+        .join(timeslot_subquery, DosuSess.id == timeslot_subquery.c.dosusess_id)
     )
     return db.session.execute(stmt).all()
 

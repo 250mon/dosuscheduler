@@ -1,46 +1,46 @@
+<!-- Basic patient info -->
+<div class="col mb-5">
+    <table class="table table-striped">
+        <tr>
+            <th>환자번호</th>
+            <td id="modal-detail-mrn"></td>
+        </tr>
+        <tr>
+            <th>환자이름</th>
+            <td id="modal-detail-patient-name"></td>
+        </tr>
+        <tr>
+            <th>환자전화번호</th>
+            <td id="modal-detail-tel"></td>
+        </tr>
+        <tr>
+            <th class="min-width">환자메모</th>
+            <td>
+                <div class="limited-text" id="modal-detail-patient-note"></div>
+            </td>
+        </tr>
+        <tr>
+            <th>치료사</th>
+            <td id="modal-detail-worker-name"></td>
+        </tr>
+        <tr>
+            <th>날 짜</th>
+            <td id="modal-detail-dosusess-date"></td>
+        </tr>
+        <tr>
+            <th>시 간</th>
+            <td id="modal-detail-slot"></td>
+        </tr>
+        <tr>
+            <th>종 류</th>
+            <td id="modal-detail-dosutype"></td>
+        </tr>
+    </table>
+</div>
 <form id="updateDetailForm"
       action="{{ url_for('dosusess.dosusess_update', id=0, next=request.full_path) }}"
       method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-    <!-- Basic patient info -->
-    <div class="col mb-5">
-        <table class="table table-striped">
-            <tr>
-                <th>환자번호</th>
-                <td id="modal-detail-mrn"></td>
-            </tr>
-            <tr>
-                <th>환자이름</th>
-                <td id="modal-detail-patient-name"></td>
-            </tr>
-            <tr>
-                <th>환자전화번호</th>
-                <td id="modal-detail-tel"></td>
-            </tr>
-            <tr>
-                <th class="min-width">환자메모</th>
-                <td>
-                    <div class="limited-text" id="modal-detail-patient-note"></div>
-                </td>
-            </tr>
-            <tr>
-                <th>치료사</th>
-                <td id="modal-detail-worker-name"></td>
-            </tr>
-            <tr>
-                <th>날 짜</th>
-                <td id="modal-detail-dosusess-date"></td>
-            </tr>
-            <tr>
-                <th>시 간</th>
-                <td id="modal-detail-slot"></td>
-            </tr>
-            <tr>
-                <th>종 류</th>
-                <td id="modal-detail-dosutype"></td>
-            </tr>
-        </table>
-    </div>
     <div class="mb-3 row">
         <label class="col-sm-2 col-form-label">상 태:</label>
         <div class="form-check-inline col-sm-9">
