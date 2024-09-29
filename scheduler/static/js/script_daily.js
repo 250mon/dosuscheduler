@@ -134,6 +134,7 @@ $(document).ready(function () {
     const data = await fetchSchedule(csrfToken, currentDate);
     const timeslotConfig = data.timeslotConfig;
     const dSchedule = data.schedule;
+    console.log(dSchedule);
     generateTable(
       userPrivilege,
       timeslotConfig,

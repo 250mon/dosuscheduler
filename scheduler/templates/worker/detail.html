@@ -75,13 +75,13 @@
                             <td>{{ dosusess.patient.name }}</td>
                             <td>{{ dosusess.dosutype.name }}</td>
                             <td>
-                                <div class="limited-text">{{ dosusess.note }}</div>
+                                <pre class="limited-text">{{ dosusess.note }}</pre>
                             </td>
                         </tr>
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="3">해당 기록이 없습니다</td>
+                        <td colepan="3">해당 기록이 없습니다</td>
                     </tr>
                 {% endif %}
             </tbody>

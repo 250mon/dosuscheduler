@@ -146,6 +146,8 @@ class TimeSlotConfig(db.Model):
 
 
 class TimeSlot(db.Model):
+    # TimeSlot has only active timeslots and other timeslots are deleted
+    # using the below event listener
     __tablename__ = "timeslot_table"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -197,7 +199,7 @@ class DosuSess(db.Model):
     )
 
     def __repr__(self) -> str:
-        return f"DosuSess(id={self.id!r}, date={self.dosusess_date!r})"
+        return f"DosuSess(id={self.id!r}, date={self.dosusess_date!r}, status={self.status!r})"
 
 
 # Changing from active to others will trigger the deletion of associated TimeSlots
@@ -300,19 +302,35 @@ def format_dosusess_detail(row):
 def get_data_by_date(
     target_date: date,
 ):  # Subquery to get all TimeSlots for the target date
-    timeslot_subquery = (
-        db.select(TimeSlot.dosusess_id)
-        .join(DateTable, TimeSlot.date_id == DateTable.id)
-        .where(DateTable.date == target_date)
-        .subquery()
-    )
-    stmt = (
-        db.select(DosuSess, DosuType, Worker, Patient)
-        .join(DosuSess.dosutype)
-        .join(DosuSess.patient)
-        .join(DosuSess.worker)
-        .join(timeslot_subquery, DosuSess.id == timeslot_subquery.c.dosusess_id)
-    )
+    # if status-filter is active, use TimeSlot which stores only active dosusesses
+    # otherwise, search the DosuSess for the date
+    if session.get("status_filter", "active") == "active":
+        timeslot_subquery = (
+            db.select(TimeSlot.dosusess_id)
+            .join(DateTable, TimeSlot.date_id == DateTable.id)
+            .where(DateTable.date == target_date)
+            .distinct()
+            .subquery()
+        )
+        stmt = (
+            db.select(DosuSess, DosuType, Worker, Patient)
+            .join(DosuSess.dosutype)
+            .join(DosuSess.patient)
+            .join(DosuSess.worker)
+            .join(timeslot_subquery, DosuSess.id == timeslot_subquery.c.dosusess_id)
+        )
+    else:
+        stmt = (
+            db.select(DosuSess, DosuType, Worker, Patient)
+            .join(DosuSess.dosutype)
+            .join(DosuSess.patient)
+            .join(DosuSess.worker)
+            .where(
+                DosuSess.dosusess_date == target_date,
+                DosuSess.status == session.get("status_filter"),
+            )
+        )
+
     return db.session.execute(stmt).all()
 
 
@@ -347,7 +365,7 @@ def get_day_schedule(sess_date: date):
 
 
 def get_month_schedule(year: int, month: int):
-    # TODO reduce the db access
+    # TODO reduce the db access by inputting date range and getting results by filtering of db
     m_schedule = {}
     for day in range(1, 32):
         try:

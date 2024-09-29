@@ -33,6 +33,7 @@
                     <th scope="col">성 별</th>
                     <th scope="col">생 일</th>
                     <th scope="col">전화번호</th>
+                    <th scope="col">환자노트</th>
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
@@ -48,6 +49,9 @@
                             <td>{{  '남' if patient.sex == 'male' else '여' }}</td>
                             <td>{{ patient.birthday | format_birthday_date }}</td>
                             <td>{{ patient.tel }}</td>
+                            <td>
+                                <pre class="limited-text">{{ patient.note }}</pre>
+                            </td>
                             <td>
                                 <a class="btn btn-info"
                                    href="{{ url_for('patient.patient_update', id=patient.id) }}">수 정</a>

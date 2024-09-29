@@ -161,7 +161,23 @@ const createDayDetail = (timeslotConfig, isSaturday, day) => {
   return dayContainer;
 };
 
-const generateCalendar = (timeslotConfig, year, month, mSchedule) => {
+const generateCalendar = (
+  year,
+  month,
+  mSchedule,
+  timeslotConfig,
+  newPatientCount,
+) => {
+  // update new patient count
+  const newPtCountDiv = $("#new-patient-count");
+  newPtCountDiv.empty();
+  $.each(newPatientCount, (index, npcEntry) => {
+    const { worker_name, count, patient_name } = npcEntry;
+    workerNpcDiv = $("<div>");
+    workerNpcDiv.text(`${worker_name}: ${count}`);
+    workerNpcDiv.appendTo(newPtCountDiv);
+  });
+  // update calendar body
   const calendarBody = $(".calendar-body");
   calendarBody.empty();
   const firstDay = new Date(year, month - 1, 1).getDay();
@@ -209,7 +225,8 @@ const fetchSchedule = async (year, month) => {
     .then((data) => {
       const mSchedule = data.schedule;
       const timeslotConfig = data.timeslotConfig;
-      generateCalendar(timeslotConfig, year, month, mSchedule);
+      const newPatientCount = data.newPatientCount;
+      generateCalendar(year, month, mSchedule, timeslotConfig, newPatientCount);
     });
 };
 

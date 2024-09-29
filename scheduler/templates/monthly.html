@@ -12,12 +12,20 @@
         <div class="calendar-container"
              data-year="{{ year }}"
              data-month="{{ month }}">
-            <div class="month-selector">
-                <button id="prev-year">&lt;&lt;</button>
-                <button id="prev-month">&lt;</button>
-                <div class="month-display" id="month-display"></div>
-                <button id="next-month">&gt;</button>
-                <button id="next-year">&gt;&gt;</button>
+            <div class="row align-items-center">
+                <div class="col-2"></div>
+                <div class="col-8">
+                    <div class="month-selector">
+                        <button id="prev-year">&lt;&lt;</button>
+                        <button id="prev-month">&lt;</button>
+                        <div class="month-display" id="month-display"></div>
+                        <button id="next-month">&gt;</button>
+                        <button id="next-year">&gt;&gt;</button>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div id="new-patient-count" class="row text-center justify-content-center"></div>
+                </div>
             </div>
             <div class="calendar">
                 <div class="calendar-header">

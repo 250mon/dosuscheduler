@@ -26,6 +26,7 @@ from scheduler.models import (
     get_or_create,
     get_timeslot_config,
 )
+from scheduler.stats import new_patient_count
 
 bp = Blueprint("dosusess", __name__, url_prefix="/dosusess")
 
@@ -251,12 +252,12 @@ def dosusess_update():
         note = request.form.get("note", "")
         dosusess.status = status
         dosusess.note = note
+        _date = request.form.get("dosusess_date", "")
 
         # if the current status_filter is set to 'active' and the status is 'active',
         # it means that the update is about changing the shcedule
-        if session.get("status_filter") == "active" and status == "active":
+        if _date and session.get("status_filter") == "active" and status == "active":
             try:
-                _date = request.form.get("dosusess_date", "")
                 sess_date = datetime.strptime(_date, "%Y-%m-%d").date()
                 dosutype_id = int(request.form.get("dosutype_id", ""))
                 room = int(request.form.get("room", ""))
@@ -325,6 +326,7 @@ def dosusess_update():
             session["status_filter"] = "active"
             return render_update_html(id, next_url)
 
+        print(dosusess.note)
         try:
             # Commit changes to the database
             db.session.commit()
@@ -332,6 +334,7 @@ def dosusess_update():
         except Exception as e:
             db.session.rollback()
             flash(f"dosusess: Failed updating {id}: {e}")
+        print("updated")
 
     return render_update_html(id, next_url)
 
@@ -394,7 +397,11 @@ def get_schedule_route():
 
             # Return the schedule as a JSON response
             tsc = get_timeslot_config(year, month)
-            return jsonify(schedule=schedule, timeslotConfig=tsc.to_dict())
+            npc = new_patient_count(year, month)
+
+            return jsonify(
+                schedule=schedule, timeslotConfig=tsc.to_dict(), newPatientCount=npc
+            )
 
         except ValueError as e:
             return jsonify({"error": str(e)}), 400

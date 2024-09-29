@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, session
 
 from scheduler import db
 from scheduler.models import TimeSlotConfig, get_timeslot_config
+from scheduler.stats import new_patient_count
 
 bp = Blueprint("main", __name__)
 
@@ -29,10 +30,12 @@ def monthly(year=None, month=None):
     ).scalar_one_or_none()
 
     tsc = get_timeslot_config(year, month)
+    npc = new_patient_count(year, month)
 
     return render_template(
         "monthly.html",
         year=year,
         month=month,
         timeslot_config=tsc.to_dict(),
+        new_patient_count=npc,
     )

@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import datetime
 
 from flask import Blueprint, flash, jsonify, render_template, request
 from sqlalchemy import func
