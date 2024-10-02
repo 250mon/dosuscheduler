@@ -1,3 +1,13 @@
+html {
+  font-size: clamp(1rem, 1.5vw, 2rem); /* Base font size scales with viewport */
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px; /* Fixed font size for smaller screens */
+  }
+}
+
 th.min-width {
   min-width: 80px;
 }
