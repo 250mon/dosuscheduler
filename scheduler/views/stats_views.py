@@ -162,13 +162,13 @@ def worker_stats():
             "환자별": {},
         }
 
-        dosutype_stats = query.group_by(DosuType.name).all()
-        for dosutype_stat in dosutype_stats:
-            more_stats["도수타입별"][dosutype_stat.dosutype_name] = dosutype_stat.count
+        dosutype_stats = query.group_by(DosuType.name, DosuSess.status).all()
+        dosutype_counts = status_count(dosutype_stats, "dosutype")
+        more_stats["도수타입별"] = dosutype_counts
 
-        patient_stats = query.group_by(Patient.name).all()
-        for patient_stat in patient_stats:
-            more_stats["환자별"][patient_stat.patient_name] = patient_stat.count
+        patient_stats = query.group_by(Patient.name, DosuSess.status).all()
+        patient_counts = status_count(patient_stats, "patient")
+        more_stats["환자별"] = patient_counts
 
         return render_template(
             "stats/worker_stats.html",
@@ -179,6 +179,38 @@ def worker_stats():
         )
 
     return render_template("stats/worker_stats.html", form=form)
+
+
+def status_count(target_stats, stats_name):
+    # Initialize a dictionary to accumulate counts per dosutype and status
+    status_counts = {}
+
+    # Accumulate counts for each item and status
+    for target_stat in target_stats:
+        if stats_name == "dosutype":
+            item_name = target_stat.dosutype_name
+        else:
+            item_name = target_stat.patient_name
+        status = target_stat.status
+
+        # Ensure the dosutype is in the dictionary
+        status_counts.setdefault(item_name, {})
+        # Store counts based on the status
+        status_counts[item_name].setdefault(target_stat.status, target_stat.count)
+
+    # Compose the final result
+    result = {}
+    for item_name, status_counts in status_counts.items():
+        active_count = status_counts.get("active", 0)
+        canceled_count = status_counts.get("canceled", 0)
+        noshow_count = status_counts.get("noshow", 0)
+
+        # the final string: active - canceled - noshow
+        result.setdefault(
+            item_name, f"{active_count} - {canceled_count} - {noshow_count}"
+        )
+
+    return result
 
 
 @bp.route("/api/dosusess_stats", methods=["POST"])
