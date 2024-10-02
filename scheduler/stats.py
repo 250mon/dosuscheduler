@@ -1,3 +1,4 @@
+import calendar
 from datetime import date
 
 from sqlalchemy import and_, func, join
@@ -8,7 +9,7 @@ from scheduler.models import DosuSess, Patient, Worker
 
 def new_patient_count(year, month):
     first_day = date(year, month, 1)
-    last_day = date(year, month + 1, 1)
+    last_day = calendar.monthrange(year, month)[1]
 
     # Subquery to get the patients of the month
     month_pt = (
@@ -20,7 +21,7 @@ def new_patient_count(year, month):
         .where(
             and_(
                 DosuSess.dosusess_date >= first_day,
-                DosuSess.dosusess_date < last_day,
+                DosuSess.dosusess_date <= last_day,
             )
         )
         .distinct()
@@ -56,7 +57,7 @@ def new_patient_count(year, month):
         .where(
             and_(
                 DosuSess.dosusess_date >= first_day,
-                DosuSess.dosusess_date < last_day,
+                DosuSess.dosusess_date <= last_day,
                 DosuSess.status == "active",
             )
         )

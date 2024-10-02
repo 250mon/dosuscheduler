@@ -1,5 +1,5 @@
 html {
-  font-size: clamp(1rem, 1.5vw, 2rem); /* Base font size scales with viewport */
+  font-size: clamp(1rem, 1vw, 2rem); /* Base font size scales with viewport */
 }
 
 @media (max-width: 768px) {
