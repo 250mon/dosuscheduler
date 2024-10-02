@@ -73,16 +73,16 @@
             <div class="d-flex flex-column mb-3">
                 {% for stats in more_stats %}
                     <div class="card mb-3">
-                        <div class="card-body">
+                        <div class="card-body tenxt-center">
                             <h5 class="card-title">{{ stats }}</h5>
-                            <ul class="list-group list-group-horizontal-md">
+                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 justify-content-around">
                                 {% for item in more_stats[stats] %}
-                                    <li class="list-group-item col-md-6 d-flex justify-content-around align-items-center">
+                                    <div class="col d-flex justify-content-evenly align-items-center">
                                         <span><strong>{{ item }}</strong></span>
                                         <span>{{ more_stats[stats][item] }}</span>
-                                    </li>
+                                    </div>
                                 {% endfor %}
-                            </ul>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}

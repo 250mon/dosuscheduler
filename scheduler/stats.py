@@ -9,7 +9,7 @@ from scheduler.models import DosuSess, Patient, Worker
 
 def new_patient_count(year, month):
     first_day = date(year, month, 1)
-    last_day = calendar.monthrange(year, month)[1]
+    last_day = date(year, month, calendar.monthrange(year, month)[1])
 
     # Subquery to get the patients of the month
     month_pt = (

@@ -80,13 +80,17 @@ def patient_stats():
             "치료사별": {},
         }
 
-        dosutype_stats = query.group_by(DosuType.name).all()
+        dosutype_stats = query.group_by(DosuType.name, DosuSess.status).all()
         for dosutype_stat in dosutype_stats:
-            more_stats["도수타입별"][dosutype_stat.dosutype_name] = dosutype_stat.count
+            more_stats["도수타입별"][
+                f"{dosutype_stat.dosutype_name} - {dosutype_stat.status}"
+            ] = dosutype_stat.count
 
-        worker_stats = query.group_by(Worker.name).all()
+        worker_stats = query.group_by(Worker.name, DosuSess.status).all()
         for worker_stat in worker_stats:
-            more_stats["치료사별"][worker_stat.worker_name] = worker_stat.count
+            more_stats["치료사별"][
+                f"{worker_stat.worker_name} - {worker_stat.status}"
+            ] = worker_stat.count
 
         return render_template(
             "stats/patient_stats.html",
