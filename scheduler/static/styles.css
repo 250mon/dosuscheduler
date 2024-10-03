@@ -1,6 +1,9 @@
 html {
+  max-width: 1200px;
+  margin: 0 auto; /* center the container */
+  padding: 20px;
   font-size: clamp(
-    16px,
+    15px,
     1vw,
     18px
   ); /* Base font size scales with viewport (min, vw %, max) */
@@ -8,7 +11,7 @@ html {
 
 @media (max-width: 768px) {
   html {
-    font-size: 14px; /* Fixed font size for smaller screens */
+    font-size: 12px; /* Fixed font size for smaller screens */
   }
 }
 
