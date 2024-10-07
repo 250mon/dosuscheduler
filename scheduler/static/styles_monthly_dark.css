@@ -206,6 +206,11 @@
   background-color: #8cd579;
 }
 
+.room1 .time-segment.blocked,
+.room2 .time-segment.blocked {
+  background-color: #424949;
+}
+
 .time-segment .tooltiptext {
   visibility: hidden;
   width: 160px;

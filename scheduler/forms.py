@@ -14,7 +14,15 @@ from wtforms import (
     TextAreaField,
     TimeField,
 )
-from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    InputRequired,
+    Length,
+    NumberRange,
+    Optional,
+)
 
 from scheduler import db
 from scheduler.models import User
@@ -125,7 +133,11 @@ class WorkerForm(FlaskForm):
 
 class PatientForm(FlaskForm):
     mrn = IntegerField(
-        "환자번호", validators=[DataRequired("환자번호는 필수 입력 항목입니다.")]
+        "환자번호",
+        validators=[
+            InputRequired("환자번호는 필수 입력 항목입니다."),
+            NumberRange(min=0, message="Not a negative integer"),
+        ],
     )
     name = StringField(
         "이 름", validators=[DataRequired("이름은 필수 입력 항목입니다.")]
@@ -161,11 +173,16 @@ class DosutypeForm(FlaskForm):
             ("6", "6"),
             ("7", "7"),
             ("8", "8"),
+            ("100", "100"),
         ],
         validators=[DataRequired("타임슬롯수는 필수 입력 항목입니다.")],
     )
     price = IntegerField(
-        "가 격", validators=[DataRequired("가격은 필수 입력 항목입니다.")]
+        "가 격",
+        validators=[
+            InputRequired("가격은 필수 입력 항목입니다."),
+            NumberRange(min=0, message="Not a negative integer"),
+        ],
     )
     available = StringField(
         "활성상태", validators=[DataRequired("Check if it is available.")]

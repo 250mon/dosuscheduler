@@ -121,6 +121,7 @@ export const generateTable = (
   statusFilter,
   getSlotClickHandler,
 ) => {
+  let lastSlotIndex = 0;
   $.each([$("#room1"), $("#room2")], (roomIndex, roomContainer) => {
     roomContainer.empty();
 
@@ -211,8 +212,11 @@ export const generateTable = (
 
       $("<div>").addClass("time-span").text(timeDisplay).appendTo(timeSlotDiv);
       $("<div>").addClass("dosusess-container").appendTo(timeSlotDiv);
+
+      lastSlotIndex = slotIndex;
     }
   });
+  return lastSlotIndex;
 };
 
 export const fetchSchedule = async (csrfToken, currentDate) => {

@@ -36,7 +36,7 @@ const realSlotClickHandler = (event, timeSlot) => {
   form.submit();
 };
 
-const applyScheduleData = (schedule) => {
+const applyScheduleData = (lastSlotIndex, schedule) => {
   handleAvailableSlotClick.handler_fn = realSlotClickHandler;
   $.each(schedule, (index, dosusessEntry) => {
     const {
@@ -57,8 +57,12 @@ const applyScheduleData = (schedule) => {
     const roomContainer = room === 1 ? $("#room1") : $("#room2");
     // take slot_quantity
     let timeSlotDiv = roomContainer.find(`#slot${slot}`);
+    // we maintain ids of each timeSlot to get slotClickHandler of the timeSlot
     const timeSlots = [timeSlot];
     for (let i = 1; i < slot_quantity; i++) {
+      if (slot + i > lastSlotIndex) {
+        break;
+      }
       const additionalTSDiv = roomContainer.find(`#slot${slot + i}`);
       timeSlotDiv = timeSlotDiv.add(additionalTSDiv);
       const additionalTS = { date: sess_date, room: room, slot: slot + i };
@@ -83,9 +87,17 @@ const applyScheduleData = (schedule) => {
     // make the timeslots assigned to the schedule unavailable
     switch (status) {
       case "active":
-        timeSlotDiv.removeClass("available").addClass("status-active");
+        timeSlotDiv.removeClass("available");
+        if (mrn === 0) {
+          // block time slot
+          timeSlotDiv.addClass("disabled");
+        } else {
+          timeSlotDiv.addClass("status-active");
+        }
         for (let ts in timeSlots) {
           const clickHandler = getSlotClickHandler(timeSlots[ts]);
+          // disable the default action of navigating to create session
+          // instead, it pops a session detail modal
           timeSlotDiv.off("click", clickHandler);
         }
         break;
@@ -134,15 +146,14 @@ $(document).ready(function () {
     const data = await fetchSchedule(csrfToken, currentDate);
     const timeslotConfig = data.timeslotConfig;
     const dSchedule = data.schedule;
-    console.log(dSchedule);
-    generateTable(
+    const lastSlotIndex = generateTable(
       userPrivilege,
       timeslotConfig,
       currentDate,
       statusFilter,
       getSlotClickHandler,
     );
-    applyScheduleData(dSchedule);
+    applyScheduleData(lastSlotIndex, dSchedule);
   };
   prevDateButton.on("click", () => changeDate(-1));
   nextDateButton.on("click", () => changeDate(1));

@@ -13,13 +13,16 @@ const createToolTip = (timeSegment) => {
   return tooltipText;
 };
 
-const setSegmentActive = (day, daySchedule) => {
+const setSegmentActive = (day, lastSlotIndex, daySchedule) => {
   daySchedule.forEach((dosusess) => {
-    const { patient_name, slot_quantity, room, slot, status } = dosusess;
+    const { patient_name, mrn, slot_quantity, room, slot, status } = dosusess;
     var timeSegments = $();
     for (let i = 0; i < slot_quantity; i++) {
-      const segmentId = `room${room}-day${day}-segment-${slot + i}`;
-      timeSegments = timeSegments.add($(`#${segmentId}`));
+      if (slot + i > lastSlotIndex) {
+        break;
+      }
+      const segmentDiv = $(`#room${room}-day${day}-segment-${slot + i}`);
+      timeSegments = timeSegments.add(segmentDiv);
     }
 
     if (timeSegments.length) {
@@ -27,15 +30,22 @@ const setSegmentActive = (day, daySchedule) => {
         $(this)
           .data({ patient_name, status })
           .removeClass("inactive disabled")
-          .addClass("time-segment")
-          .addClass(
-            status === "noshow"
-              ? "noshow"
-              : status === "canceled"
-                ? "canceled"
-                : "active",
-          )
-          .append(createToolTip($(this)));
+          .addClass("time-segment");
+        if (mrn === 0) {
+          $(this)
+            .addClass("blocked")
+            .append(createToolTip($(this)));
+        } else {
+          $(this)
+            .addClass(
+              status === "noshow"
+                ? "noshow"
+                : status === "canceled"
+                  ? "canceled"
+                  : "active",
+            )
+            .append(createToolTip($(this)));
+        }
       });
 
       if (timeSegments.length > 1) {
@@ -103,6 +113,7 @@ function* timeSegmentGenerator(hs) {
 
 const createDayDetail = (timeslotConfig, isSaturday, day) => {
   const dayContainer = $("<div>").addClass("day-container");
+  let lastSlotIndex = 0;
 
   ["room1", "room2"].forEach((roomClass) => {
     const roomContainer = $("<div>")
@@ -155,10 +166,11 @@ const createDayDetail = (timeslotConfig, isSaturday, day) => {
         );
       }
       timeBar.append(timeSegment);
+      lastSlotIndex = slotIndex;
     }
     dayContainer.append(roomContainer);
   });
-  return dayContainer;
+  return { dayContainer, lastSlotIndex };
 };
 
 const generateCalendar = (
@@ -188,6 +200,7 @@ const generateCalendar = (
   }
 
   for (let day = 1; day <= daysInMonth; day++) {
+    let lastTimeSlotIndex = 0;
     const dayCell = $("<div>")
       .addClass("day-cell")
       .on(
@@ -201,12 +214,18 @@ const generateCalendar = (
     const dayOfWeek = (firstDay + day - 1) % 7;
     if (dayOfWeek !== 0) {
       // Skip Sundays
-      dayCell.append(createDayDetail(timeslotConfig, dayOfWeek === 6, day));
+      // dayCell.append(createDayDetail(timeslotConfig, dayOfWeek === 6, day));
+      const { dayContainer, lastSlotIndex } = createDayDetail(
+        timeslotConfig,
+        dayOfWeek === 6,
+        day,
+      );
+      dayCell.append(dayContainer);
+      lastTimeSlotIndex = lastSlotIndex;
     }
     calendarBody.append(dayCell);
-
     if (mSchedule[day]) {
-      setSegmentActive(day, mSchedule[day]);
+      setSegmentActive(day, lastTimeSlotIndex, mSchedule[day]);
     }
   }
 };

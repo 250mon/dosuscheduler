@@ -27,7 +27,7 @@ const realSlotClickHandler = (event, timeSlot) => {
   }
 };
 
-const applyScheduleData = (schedule) => {
+const applyScheduleData = (lastSlotIndex, schedule) => {
   handleAvailableSlotClick.handler_fn = realSlotClickHandler;
   const update_dosusess_id = $("#info-id").data("dosusess-id");
   $.each(schedule, (index, dosusessEntry) => {
@@ -45,6 +45,9 @@ const applyScheduleData = (schedule) => {
     // its additional time slots shoud be available slots
     if (id !== update_dosusess_id) {
       for (let i = 1; i < slot_quantity; i++) {
+        if (slot + i > lastSlotIndex) {
+          break;
+        }
         const additionalTSDiv = roomContainer.find(`#slot${slot + i}`);
         timeSlotDiv = timeSlotDiv.add(additionalTSDiv);
         const additionalTS = { date: sess_date, room: room, slot: slot + i };
@@ -62,7 +65,13 @@ const applyScheduleData = (schedule) => {
     // make the timeslots assigned to the schedule unavailable
     switch (status) {
       case "active":
-        timeSlotDiv.removeClass("available").addClass("status-active");
+        timeSlotDiv.removeClass("available");
+        if (mrn === 0) {
+          // block time slot
+          timeSlotDiv.addClass("disabled");
+        } else {
+          timeSlotDiv.addClass("status-active");
+        }
         for (let ts in timeSlots) {
           const clickHandler = getSlotClickHandler(timeSlots[ts]);
           timeSlotDiv.off("click", clickHandler);
@@ -103,14 +112,14 @@ $(document).ready(function () {
     const data = await fetchSchedule(csrfToken, currentDate);
     const timeslotConfig = data.timeslotConfig;
     const dSchedule = data.schedule;
-    generateTable(
+    const lastSlotIndex = generateTable(
       userPrivilege,
       timeslotConfig,
       currentDate,
       statusFilter,
       getSlotClickHandler,
     );
-    applyScheduleData(dSchedule);
+    applyScheduleData(lastSlotIndex, dSchedule);
   };
   prevDateButton.on("click", () => {
     if (compareWithToday(currentDate) > 0) {
