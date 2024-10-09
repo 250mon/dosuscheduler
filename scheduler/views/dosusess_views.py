@@ -114,13 +114,9 @@ def select_patient_to_create_dosusess():
         # initally showing an empty page
         patients = []
 
-    dosutypes = db.session.execute(
-        db.select(DosuType).filter(DosuType.available)
-    ).scalars()
     return render_template(
         "dosusess/create.html",
         patients=patients,
-        dosutypes=dosutypes,
         dosusess_info=session.get("dosusess_info"),
     )
 
@@ -341,13 +337,9 @@ def dosusess_update():
 
 def render_update_html(id, next_url):
     dosusess_detail = get_dosusess_detail_by_id(id)
-    dosutypes = db.session.execute(
-        db.select(DosuType).filter(DosuType.available)
-    ).scalars()
     return render_template(
         "dosusess/update.html",
         dosusess=dosusess_detail,
-        dosutypes=dosutypes,
         next=next_url,
     )
 

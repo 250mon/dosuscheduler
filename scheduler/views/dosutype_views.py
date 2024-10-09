@@ -1,9 +1,19 @@
-from flask import Blueprint, flash, g, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    flash,
+    g,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_wtf import csrf
+from sqlalchemy import and_
 
 from scheduler import db
 from scheduler.forms import DosutypeForm
-from scheduler.models import DosuType
+from scheduler.models import DosuType, Patient
 
 bp = Blueprint("dosutype", __name__, url_prefix="/dosutype")
 
@@ -99,3 +109,32 @@ def dosutype_delete(id):
         entity_delete_url="dosutype.dosutype_delete",
         entity_list_url="dosutype.dosutype_list",
     )
+
+
+@bp.route("/get_dosutypes/<int:patient_id>")
+def get_dosutypes(patient_id):
+    mrn = db.session.execute(
+        db.select(Patient.mrn).where(Patient.id == patient_id)
+    ).scalar()
+
+    dosutypes = db.session.execute(
+        db.select(DosuType).where(
+            and_(
+                DosuType.available,
+                (
+                    DosuType.name.like("off%")
+                    if mrn == 0
+                    else DosuType.name.not_like("off%")
+                ),
+            )
+        )
+    ).scalars()
+
+    dosutypes_dict = {}
+    for dt in dosutypes:
+        dosutypes_dict[dt.id] = dt.to_dict()
+
+    if dosutypes:
+        return jsonify(dosutypes=dosutypes_dict)
+    else:
+        return jsonify({"error": "dosusess not found"}), 404

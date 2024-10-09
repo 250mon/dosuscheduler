@@ -75,6 +75,16 @@ class DosuType(db.Model):
         back_populates="dosutype", cascade="all, delete-orphan"
     )
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "order_code": self.order_code,
+            "slot_quantity": self.slot_quantity,
+            "price": self.price,
+            "available": self.available,
+        }
+
     def __repr__(self) -> str:
         return f"DosuType(id={self.id!r}, name={self.name!r})"
 

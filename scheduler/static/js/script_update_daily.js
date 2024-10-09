@@ -7,6 +7,7 @@ import {
   handleAvailableSlotClick,
   getSlotClickHandler,
 } from "./utils_daily.js";
+import { createDosutypeSelect } from "./script_create.js";
 
 const realSlotClickHandler = (event, timeSlot) => {
   const selectedTimeSlot = $(".dosusess-list-container").find(".selected");
@@ -31,7 +32,7 @@ const applyScheduleData = (lastSlotIndex, schedule) => {
   handleAvailableSlotClick.handler_fn = realSlotClickHandler;
   const update_dosusess_id = $("#info-id").data("dosusess-id");
   $.each(schedule, (index, dosusessEntry) => {
-    const { id, date, room, slot, slot_quantity, patient_name, status } =
+    const { id, date, room, slot, slot_quantity, mrn, patient_name, status } =
       dosusessEntry;
 
     const sess_date = new Date(date);
@@ -85,6 +86,13 @@ const applyScheduleData = (lastSlotIndex, schedule) => {
 };
 
 $(document).ready(function () {
+  // display a dosutype select options
+  const dosutypeSelect = document.getElementById("dosutype-select");
+  const patientId = dosutypeSelect.getAttribute("data-patient-id");
+  const dosutypeId = dosutypeSelect.getAttribute("data-dosutype-id");
+  createDosutypeSelect(dosutypeSelect, patientId, dosutypeId);
+
+  // display a daily list for changing schedule
   const dosusessListContainer = $(".dosusess-list-container");
   const dateDisplay = $("#date-display");
   const prevDateButton = $("#prev-day");

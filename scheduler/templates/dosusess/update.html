@@ -64,12 +64,9 @@
                     class="form-select"
                     id="dosutype-select"
                     name="dosutype_id"
-                    required>
-                {% for dosutype in dosutypes %}
-                    <option value={{ dosutype.id }} {% if dosusess.dosutype_id == dosutype.id %}selected{% endif %}>{{ dosutype.name }}
-                    </option>
-                {% endfor %}
-            </select>
+                    data-patient-id="{{ dosusess.patient_id }}"
+                    data-dosutype-id="{{ dosusess.dosutype_id }}"
+                    required></select>
         </div>
         <div class="mb-3 row">
             <div class="btn-group col" role="group">

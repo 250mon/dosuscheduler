@@ -30,10 +30,8 @@
                         <td>{{ patient.birthday | format_birthday_date }}</td>
                         <td>{{ patient.tel }}</td>
                         <td>
-                            <button class="btn btn-primary"
-                                    id="pt-select-btn"
-                                    data-patient-id="{{ patient.id }}"
-                                    onclick="showDosuInfoInputBox(this)">선 택</button>
+                            <button class="btn btn-primary ptSelectBtn"
+                                    data-patient-id="{{ patient.id }}">선 택</button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -51,12 +49,7 @@
                         class="form-select"
                         id="dosutype-select"
                         name="dosutype_id"
-                        required>
-                    {% for dosutype in dosutypes %}
-                        <option value={{ dosutype.id }}>{{ dosutype.name }}
-                        </option>
-                    {% endfor %}
-                </select>
+                        required></select>
             </div>
             <div class="input-group mb-5">
                 <span class="input-group-text">메 모</span>
@@ -67,14 +60,6 @@
                href="{{ url_for('dosusess.daily_list', year=dosusess_info.year, month=dosusess_info.month, day=dosusess_info.day) }}">취 소</a>
         </form>
     </div>
-    <script>
-      function showDosuInfoInputBox (btn) {
-        const dosuInfoInputContainer = document.getElementById("dosusess-info-input");
-        dosuInfoInputContainer.classList.remove("d-none");
-        
-        const patientId = btn.getAttribute("data-patient-id");
-        const patientIdInput = document.getElementById("patient-id-input");
-        patientIdInput.setAttribute("value", patientId)
-      }
-    </script>
+    <script type="module"
+            src="{{ url_for('static', filename='js/script_create.js') }}"></script>
 {% endblock %}
