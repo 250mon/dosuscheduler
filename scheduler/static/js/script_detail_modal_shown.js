@@ -38,7 +38,9 @@ $(document).ready(function () {
           .then((data) => {
             sess = data.dosusess;
             $("#modal-detail-mrn").text(sess.mrn);
-            $("#modal-detail-patient-name").text(sess.patient_name);
+            $("#modal-detail-patient-name")
+              .attr("href", `/patient/detail/${sess.patient_id}`)
+              .text(sess.patient_name);
             $("#modal-detail-patient-note").text(sess.patient_note);
             $("#modal-detail-tel").text(sess.tel);
             $("#modal-detail-worker-name").text(sess.worker_name);
