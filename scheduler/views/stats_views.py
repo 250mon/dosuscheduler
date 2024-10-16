@@ -131,6 +131,7 @@ def worker_stats():
             .join(DosuSess.patient)
             .filter(
                 DosuSess.worker_id == worker.id,
+                Patient.mrn != 0,
                 DosuSess.dosusess_date.between(start_date, end_date),
             )
         )
