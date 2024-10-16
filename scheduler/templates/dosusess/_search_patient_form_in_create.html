@@ -1,36 +1,27 @@
 <div class="row mb-3">
-  <div class="col-md-6 align-items-center">
-    <form
-      id="search-form"
-      class="d-flex"
-      method="get"
-      action="{{ url_for('dosusess.select_patient_to_create_dosusess') }}"
-    >
-      <div class="col-md-6">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <input
-          type="text"
-          class="form-control"
-          id="query"
-          name="query"
-          placeholder="환자 이름 또는 번호"
-        />
-      </div>
-      <div class="col-md-4 ms-3">
-        <button type="submit" class="btn btn-outline-success">검 색</button>
-      </div>
-    </form>
-  </div>
-
-  <div id="createPatient" class="col-md-4 d-flex justify-content-end">
-    <!-- Button trigger modal -->
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#createPatientModal"
-    >
-      New Patient
-    </button>
-  </div>
+    <div class="col-md-6 align-items-center">
+        <form id="searchForm"
+              class="d-flex"
+              method="get"
+              action="{{ url_for("dosusess.select_patient_to_create_dosusess") }}">
+            <div class="col-md-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <input type="text"
+                       class="form-control"
+                       id="query"
+                       name="query"
+                       placeholder="환자 이름 또는 번호" />
+            </div>
+            <div class="col-md-4 ms-3">
+                <button type="submit" class="btn btn-outline-success">검 색</button>
+            </div>
+        </form>
+    </div>
+    <div id="createPatient" class="col-md-4 d-flex justify-content-end">
+        <!-- Button trigger modal -->
+        <button type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#createPatientModal">New Patient</button>
+    </div>
 </div>

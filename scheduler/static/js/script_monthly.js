@@ -181,7 +181,7 @@ const generateCalendar = (
   newPatientCount,
 ) => {
   // update new patient count
-  const newPtCountDiv = $("#new-patient-count");
+  const newPtCountDiv = $("#newPatientCount");
   newPtCountDiv.empty();
   $.each(newPatientCount, (index, npcEntry) => {
     const { worker_name, count, patient_name } = npcEntry;
@@ -266,10 +266,10 @@ const convertStrTime = (timeString) => {
 };
 
 $(document).ready(function () {
-  const prevYearButton = $("#prev-year");
-  const prevMonthButton = $("#prev-month");
-  const nextYearButton = $("#next-year");
-  const nextMonthButton = $("#next-month");
+  const prevYearButton = $("#prevYear");
+  const prevMonthButton = $("#prevMonth");
+  const nextYearButton = $("#nextYear");
+  const nextMonthButton = $("#nextMonth");
   const calendarContainer = $(".calendar-container");
 
   let currentDate = new Date(

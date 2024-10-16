@@ -18,7 +18,7 @@ $(document).ready(function () {
       const dosusessId = button.getAttribute("data-bs-dosusess-id");
 
       // make an update url to include dosusessId
-      const modalUpdateBtn = $("#detail-modal-update-btn");
+      const modalUpdateBtn = $("#detailModalUpdateBtn");
       const updateForm = $("#updateDetailForm");
       const baseUpdateUrl = updateForm.attr("action");
       const updateUrl = baseUpdateUrl.replace("0", dosusessId);
@@ -28,43 +28,43 @@ $(document).ready(function () {
       const btnUpdateUrl = btnBaseUpdateUrl.replace("0", dosusessId);
       modalUpdateBtn.attr("href", btnUpdateUrl);
 
-      $("#modal-detail-id").val(dosusessId);
-      $("#modal-update-id").val(dosusessId);
-      $("#modal-delete-id").val(dosusessId);
+      $("#modalDetailId").val(dosusessId);
+      $("#modalUpdateId").val(dosusessId);
+      $("#modalDeleteId").val(dosusessId);
 
       const fetchDosuSess = async (id) => {
         fetch(`/dosusess/get_dosusess/${id}`)
           .then((response) => response.json())
           .then((data) => {
             sess = data.dosusess;
-            $("#modal-detail-mrn").text(sess.mrn);
-            $("#modal-detail-patient-name")
+            $("#modalDetailMrn").text(sess.mrn);
+            $("#modalDetailPatientName")
               .attr("href", `/patient/detail/${sess.patient_id}`)
               .text(sess.patient_name);
-            $("#modal-detail-patient-note").text(sess.patient_note);
-            $("#modal-detail-tel").text(sess.tel);
-            $("#modal-detail-worker-name").text(sess.worker_name);
-            $("#modal-detail-dosusess-date").text(sess.date_display);
-            $("#modal-detail-slot").text(sess.slot_display);
-            $("#modal-detail-dosutype").text(sess.dosutype_name);
-            $(`#modal-detail-status-${sess.status}`).prop("checked", true);
-            $("#modal-detail-note").text(sess.note);
+            $("#modalDetailPatientNote").text(sess.patient_note);
+            $("#modalDetailTel").text(sess.tel);
+            $("#modalDetailWorkerName").text(sess.worker_name);
+            $("#modalDetailDosusessDate").text(sess.date_display);
+            $("#modalDetailSlot").text(sess.slot_display);
+            $("#modalDetailDosutype").text(sess.dosutype_name);
+            $(`#modalDetailStatus-${sess.status}`).prop("checked", true);
+            $("#modalDetailNote").text(sess.note);
             if (
               userPrivilege > 2 ||
               isDateNoEarlierThanToday(new Date(sess.date))
             ) {
               if (sess.status === "active") {
-                $("#detail-modal-update-btn").css("display", "");
-                $("#detail-modal-save-btn").css("display", "");
-                $("#detail-modal-delete-btn").css("display", "");
+                $("#detailModalUpdateBtn").css("display", "");
+                $("#detailModalSaveBtn").css("display", "");
+                $("#detailModalDeleteBtn").css("display", "");
               } else {
-                $("#detail-modal-update-btn").css("display", "none");
-                $("#detail-modal-delete-btn").css("display", "none");
+                $("#detailModalUpdateBtn").css("display", "none");
+                $("#detailModalDeleteBtn").css("display", "none");
               }
             } else {
-              $("#detail-modal-update-btn").css("display", "none");
-              $("#detail-modal-save-btn").css("display", "none");
-              $("#detail-modal-delete-btn").css("display", "none");
+              $("#detailModalUpdateBtn").css("display", "none");
+              $("#detailModalSaveBtn").css("display", "none");
+              $("#detailModalDeleteBtn").css("display", "none");
             }
           });
       };

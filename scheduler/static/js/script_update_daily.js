@@ -22,15 +22,15 @@ const realSlotClickHandler = (event, timeSlot) => {
     const formattedDate = formatDate(timeSlot.date);
     const room = timeSlot["room"];
     const slot = timeSlot["slot"];
-    $("#update-room").val(room);
-    $("#update-date").val(`${formattedDate}`);
-    $("#update-slot").val(slot);
+    $("#updateRoom").val(room);
+    $("#updateDate").val(`${formattedDate}`);
+    $("#updateSlot").val(slot);
   }
 };
 
 const applyScheduleData = (lastSlotIndex, schedule) => {
   handleAvailableSlotClick.handler_fn = realSlotClickHandler;
-  const update_dosusess_id = $("#info-id").data("dosusess-id");
+  const update_dosusess_id = $("#infoId").data("dosusess-id");
   $.each(schedule, (index, dosusessEntry) => {
     const { id, date, room, slot, slot_quantity, mrn, patient_name, status } =
       dosusessEntry;
@@ -87,16 +87,16 @@ const applyScheduleData = (lastSlotIndex, schedule) => {
 
 $(document).ready(function () {
   // display a dosutype select options
-  const dosutypeSelect = document.getElementById("dosutype-select");
+  const dosutypeSelect = document.getElementById("dosutypeSelect");
   const patientId = dosutypeSelect.getAttribute("data-patient-id");
   const dosutypeId = dosutypeSelect.getAttribute("data-dosutype-id");
   createDosutypeSelect(dosutypeSelect, patientId, dosutypeId);
 
   // display a daily list for changing schedule
   const dosusessListContainer = $(".dosusess-list-container");
-  const dateDisplay = $("#date-display");
-  const prevDateButton = $("#prev-day");
-  const nextDateButton = $("#next-day");
+  const dateDisplay = $("#dateDisplay");
+  const prevDateButton = $("#prevDay");
+  const nextDateButton = $("#nextDay");
   const csrfToken = $('meta[name="csrf_token"]').attr("content");
 
   const userPrivilege = dosusessListContainer.data("user_privilege");

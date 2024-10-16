@@ -30,31 +30,31 @@
                 </tr>
                 <tr>
                     <th>치료사</th>
-                    <td id="update-workername">{{ dosusess.worker_name }}</td>
+                    <td id="updateWorkername">{{ dosusess.worker_name }}</td>
                 </tr>
                 <tr>
                     <th>날 짜</th>
-                    <td id="update-date-display">{{ dosusess.date_display }}</td>
+                    <td id="updateDateDisplay">{{ dosusess.date_display }}</td>
                 </tr>
                 <tr>
                     <th>시 간</th>
-                    <td id="update-slot-display">{{ dosusess.slot_display }}</td>
+                    <td id="updateSlotDisplay">{{ dosusess.slot_display }}</td>
                 </tr>
             </table>
         </div>
-        <div id="info-id" data-dosusess-id="{{ dosusess.id }}"></div>
+        <div id="infoId" data-dosusess-id="{{ dosusess.id }}"></div>
         <input type="hidden"
-               id="update-room"
+               id="updateRoom"
                name="room"
                value="{{ dosusess.room }}"
                required>
         <input type="hidden"
-               id="update-date"
+               id="updateDate"
                name="dosusess_date"
                value="{{ dosusess.date }}"
                required>
         <input type="hidden"
-               id="update-slot"
+               id="updateSlot"
                name="slot"
                value="{{ dosusess.slot }}"
                required>
@@ -62,7 +62,7 @@
             <span class="input-group-text">종 류</span>
             <select type="number"
                     class="form-select"
-                    id="dosutype-select"
+                    id="dosutypeSelect"
                     name="dosutype_id"
                     data-patient-id="{{ dosusess.patient_id }}"
                     data-dosutype-id="{{ dosusess.dosutype_id }}"
@@ -73,30 +73,30 @@
                 <input type="radio"
                        class="btn-check"
                        name="status"
-                       id="status-active"
+                       id="statusActive"
                        autocomplete="off"
                        value="active"
                        {% if dosusess.status == 'active' %}checked{% endif %}
                        required>
-                <label class="btn btn-outline-primary" for="status-active">Active</label>
+                <label class="btn btn-outline-primary" for="statusActive">Active</label>
                 <input type="radio"
                        class="btn-check"
                        name="status"
-                       id="status-canceled"
+                       id="statusCanceled"
                        autocomplete="off"
                        value="canceled"
                        {% if dosusess.status == 'canceled' %}checked{% endif %}
                        required>
-                <label class="btn btn-outline-secondary" for="status-canceled">Canceled</label>
+                <label class="btn btn-outline-secondary" for="statusCanceled">Canceled</label>
                 <input type="radio"
                        class="btn-check"
                        name="status"
-                       id="status-noshow"
+                       id="statusNoshow"
                        autocomplete="off"
                        value="noshow"
                        {% if dosusess.status == 'noshow' %}checked{% endif %}
                        required>
-                <label class="btn btn-outline-danger" for="status-noshow">No Show</label>
+                <label class="btn btn-outline-danger" for="statusNoshow">No Show</label>
             </div>
         </div>
         <div class="input-group mb-3">

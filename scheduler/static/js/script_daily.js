@@ -122,9 +122,9 @@ const applyScheduleData = (lastSlotIndex, schedule) => {
 
 $(document).ready(function () {
   const dosusessListContainer = $(".dosusess-list-container");
-  const dateDisplay = $("#date-display");
-  const prevDateButton = $("#prev-day");
-  const nextDateButton = $("#next-day");
+  const dateDisplay = $("#dateDisplay");
+  const prevDateButton = $("#prevDay");
+  const nextDateButton = $("#nextDay");
   const csrfToken = $('meta[name="csrf_token"]').attr("content");
 
   const userPrivilege = dosusessListContainer.data("user_privilege");

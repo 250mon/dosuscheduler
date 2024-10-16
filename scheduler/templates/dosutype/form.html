@@ -24,9 +24,9 @@
         <div class="row mb-5 align-items-center">
             <label class="col-md-2">{{ form.available.label }}</label>
             <div class="col-sm-8 btn-group" role="group">
-                <input type="radio" class="btn-check" id="available_yes" name="available" value="yes" {{ 'checked' if form.available.data == 'True' or 'yes' }}>
+                <input type="radio" class="btn-check" id="available_yes" name="available" value="yes" {{ 'checked' if form.available.data }}>
                 <label class="btn btn-outline-primary" for="available_yes">활성</label>
-                <input type="radio" class="btn-check" id="available_no" name="available" value="no" {{ 'checked' if form.available.data == 'False' }}>
+                <input type="radio" class="btn-check" id="available_no" name="available" value="no" {{ 'checked' if not form.available.data }}>
                 <label class="btn btn-outline-secondary" for="available_no">비활성</label>
             </div>
         </div>

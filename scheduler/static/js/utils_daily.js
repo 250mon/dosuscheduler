@@ -203,7 +203,7 @@ export const generateTable = (
             const msg = "입력하려면 설정을 Active 상태로 바꿔주세요.";
             toastBody.text(msg);
             const toastBootstrap = bootstrap.Toast.getOrCreateInstance(
-              $("#alert-toast"),
+              $("#alertToast"),
             );
             toastBootstrap.show();
           }

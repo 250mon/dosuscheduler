@@ -19,9 +19,9 @@
              data-sess_date="{{ sess_date }}"
              data-status_filter="{{ status_filter }}">
             <div class="date-selector">
-                <button id="prev-day">&lt;</button>
-                <div class="date-display" id="date-display"></div>
-                <button id="next-day">&gt;</button>
+                <button id="prevDay">&lt;</button>
+                <div class="date-display" id="dateDisplay"></div>
+                <button id="nextDay">&gt;</button>
             </div>
             <div class="rooms-container">
                 <div class="room-container" id="room1"></div>
@@ -29,17 +29,9 @@
             </div>
         </div>
     </div>
-    <!-- Flash messages -->
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="alert alert-info" role="alert">
-                {% for message in messages %}<p>{{ message }}</p>{% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
     <!-- Toast -->
     <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="alert-toast"
+        <div id="alertToast"
              class="toast"
              role="alert"
              aria-live="assertive"

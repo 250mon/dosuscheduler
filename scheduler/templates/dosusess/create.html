@@ -7,7 +7,7 @@
     <!-- Include the create patient modal partial -->
     {% include "patient/_create_patient_modal.html" %}
     <!-- Results Table -->
-    <div id="search-patient-results" class="mt-4 mb-5">
+    <div id="searchPatientResults" class="mt-4 mb-5">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -38,16 +38,16 @@
             </tbody>
         </table>
     </div>
-    <div id="dosusess-info-input" class="d-none">
+    <div id="dosusessInfoInput" class="d-none">
         <form action="{{ url_for("dosusess.dosusess_create") }}" method="post">
             <!-- Include the CSRF token as a hidden input -->
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-            <input type="hidden" id="patient-id-input" name="patient_id" />
+            <input type="hidden" id="patientIdInput" name="patient_id" />
             <div class="input-group mb-3">
                 <span class="input-group-text">종 류</span>
                 <select type="number"
                         class="form-select"
-                        id="dosutype-select"
+                        id="dosutypeSelect"
                         name="dosutype_id"
                         required></select>
             </div>

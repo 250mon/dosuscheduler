@@ -1,102 +1,75 @@
-<form
-  id="createPatientForm"
-  action="{{ url_for('patient.patient_create') }}"
-  method="post"
->
-  <!-- Include the CSRF token as a hidden input -->
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-  <!-- next_url might be /patients/ or /dosusess/select_patient_to_create_dosusess/ -->
-  <input
-    type="hidden"
-    name="next"
-    id="pt-create-next-url"
-    value="{{ next_url if next_url else request.path }}"
-  />
-
-  <div class="row mb-4">
-    <label for="pt-create-mrn" class="col-sm-3 col-form-label">환자번호:</label>
-    <div class="col-sm-9">
-      <input
-        type="number"
-        class="form-control"
-        id="pt-create-mrn"
-        name="mrn"
-        value=""
-        required
-      />
+<form id="createPatientForm"
+      action="{{ url_for("patient.patient_create") }}"
+      method="post">
+    <!-- Include the CSRF token as a hidden input -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <!-- next_url might be /patients/ or /dosusess/select_patient_to_create_dosusess/ -->
+    <input type="hidden"
+           name="next"
+           id="ptCreateNextUrl"
+           value="{{ next_url if next_url else request.path }}" />
+    <div class="row mb-4">
+        <label for="ptCreateMrn" class="col-sm-3 col-form-label">환자번호:</label>
+        <div class="col-sm-9">
+            <input type="number"
+                   class="form-control"
+                   id="ptCreateMrn"
+                   name="mrn"
+                   value=""
+                   required />
+        </div>
     </div>
-  </div>
-  <div class="row mb-4">
-    <label for="pt-create-name" class="col-sm-3 col-form-label">이 름:</label>
-    <div class="col-sm-9">
-      <input
-        type="text"
-        class="form-control"
-        id="pt-create-name"
-        name="name"
-        value=""
-        required
-      />
+    <div class="row mb-4">
+        <label for="ptCreateName" class="col-sm-3 col-form-label">이 름:</label>
+        <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   id="ptCreateName"
+                   name="name"
+                   value=""
+                   required />
+        </div>
     </div>
-  </div>
-  <div class="row align-items-center mb-4">
-    <label class="col-sm-3">성 별:</label>
-    <div class="btn-group col-sm-9" role="group" data-toggle="buttons">
-      <input
-        type="radio"
-        class="btn-check"
-        name="sex"
-        id="pt-create-male"
-        value="M"
-        autocomplete="off"
-        checked
-      />
-      <label class="btn btn-outline-primary col-2" for="pt-create-male"
-        >남</label
-      >
-      <input
-        type="radio"
-        class="btn-check"
-        name="sex"
-        id="pt-create-female"
-        value="F"
-        autocomplete="off"
-      />
-      <label class="btn btn-outline-danger col-2" for="pt-create-female"
-        >여</label
-      >
+    <div class="row align-items-center mb-4">
+        <label class="col-sm-3">성 별:</label>
+        <div class="btn-group col-sm-9" role="group" data-toggle="buttons">
+            <input type="radio"
+                   class="btn-check"
+                   name="sex"
+                   id="ptCreateMale"
+                   value="M"
+                   autocomplete="off"
+                   checked />
+            <label class="btn btn-outline-primary col-2" for="ptCreateMale">남</label>
+            <input type="radio"
+                   class="btn-check"
+                   name="sex"
+                   id="ptCreateFemale"
+                   value="F"
+                   autocomplete="off" />
+            <label class="btn btn-outline-danger col-2" for="ptCreateFemale">여</label>
+        </div>
     </div>
-  </div>
-  <div class="row align-items-center mb-4">
-    <label for="pt-create-birthday" class="col-sm-3 col-form-label"
-      >생 일 (YYYY-MM-DD):</label
-    >
-    <div class="col-sm-9">
-      <input
-        type="date"
-        class="form-control"
-        id="pt-create-birthday"
-        name="birthday"
-        value=""
-      />
+    <div class="row align-items-center mb-4">
+        <label for="ptCreateBirthday" class="col-sm-3 col-form-label">생 일 (YYYY-MM-DD):</label>
+        <div class="col-sm-9">
+            <input type="date"
+                   class="form-control"
+                   id="ptCreateBirthday"
+                   name="birthday"
+                   value="" />
+        </div>
     </div>
-  </div>
-  <div class="row mb-4">
-    <label for="pt-create-tel" class="col-sm-3 col-form-label">전화번호:</label>
-    <div class="col-sm-9">
-      <input
-        type="tel"
-        class="form-control"
-        id="pt-create-tel"
-        name="tel"
-        value=""
-      />
+    <div class="row mb-4">
+        <label for="ptCreateTel" class="col-sm-3 col-form-label">전화번호:</label>
+        <div class="col-sm-9">
+            <input type="tel" class="form-control" id="ptCreateTel" name="tel" value="" />
+        </div>
     </div>
-  </div>
-  <div class="row mb-4">
-    <label for="pt-create-note" class="col-sm-3 col-form-label">메 모</label>
-    <div class="col-sm-9">
-      <textarea class="form-control" id="pt-create-note" name="note"></textarea>
+    <div class="row mb-4">
+        <label for="ptCreateNote" class="col-sm-3 col-form-label">메 모</label>
+        <div class="col-sm-9">
+            <textarea class="form-control" id="ptCreateNote" name="note"></textarea>
+        </div>
     </div>
-  </div>
 </form>

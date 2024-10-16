@@ -43,15 +43,15 @@ export const createDosutypeSelect = async (
 };
 
 const showDosuInfoInputBox = (btn) => {
-  const dosuInfoInputContainer = document.getElementById("dosusess-info-input");
+  const dosuInfoInputContainer = document.getElementById("dosusessInfoInput");
   dosuInfoInputContainer.classList.remove("d-none");
 
   // set input for patientId
   const patientId = btn.getAttribute("data-patient-id");
-  const patientIdInput = document.getElementById("patient-id-input");
+  const patientIdInput = document.getElementById("patientIdInput");
   patientIdInput.setAttribute("value", patientId);
 
-  const dosutypeSelectEl = document.getElementById("dosutype-select");
+  const dosutypeSelectEl = document.getElementById("dosutypeSelect");
   // different dosutypes are displayed depending on patientId
   createDosutypeSelect(dosutypeSelectEl, patientId);
 };

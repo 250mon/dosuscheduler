@@ -40,11 +40,11 @@
                        id="navbarDropdown"
                        role="button"
                        data-bs-toggle="dropdown"
-                       aria-expanded="false">설 정</a>
+                       aria-expanded="false">보기설정</a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li class="dropdown-item">
                             {% if status_filter %}
-                                <form id="status-filter-form"
+                                <form id="statusFilterForm"
                                       action="{{ url_for('dosusess.status_settings', next=request.full_path) }}"
                                       method="post">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -52,28 +52,28 @@
                                         <input class="form-check-input"
                                                type="radio"
                                                name="new-status"
-                                               id="status-active-radio"
+                                               id="statusActiveRadio"
                                                value="active"
                                                {% if status_filter == 'active' %}checked{% endif %}>
-                                        <label class="form-check-label" for="status-active-radio">Active</label>
+                                        <label class="form-check-label" for="statusActiveRadio">Active</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input"
                                                type="radio"
                                                name="new-status"
-                                               id="status-canceled-radio"
+                                               id="statusCanceledRadio"
                                                value="canceled"
                                                {% if status_filter == 'canceled' %}checked{% endif %}>
-                                        <label class="form-check-label" for="status-canceled-radio">Canceled</label>
+                                        <label class="form-check-label" for="statusCanceledRadio">Canceled</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input"
                                                type="radio"
                                                name="new-status"
-                                               id="status-noshow-radio"
+                                               id="statusNoshowRadio"
                                                value="noshow"
                                                {% if status_filter == 'noshow' %}checked{% endif %}>
-                                        <label class="form-check-label" for="status-noshow-radio">No Show</label>
+                                        <label class="form-check-label" for="statusNoshowRadio">No Show</label>
                                     </div>
                                 </form>
                             {% endif %}
@@ -145,21 +145,6 @@
                             </li>
                         </ul>
                     </li>
-                {% elif g.user %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle"
-                           href="#"
-                           id="navbarDropdown"
-                           role="button"
-                           data-bs-toggle="dropdown"
-                           aria-expanded="false">기본설정</a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li>
-                                <a class="dropdown-item"
-                                   href="{{ url_for("auth.update", user_id=g.user.id) }}">계정 설정</a>
-                            </li>
-                        </ul>
-                    </li>
                 {% endif %}
                 {% if g.user %}
                     <li class="nav-item">
@@ -177,3 +162,13 @@
         </div>
     </div>
 </nav>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const radios = document.querySelectorAll('input[name="new-status"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById("statusFilterForm").submit();
+        });
+    });
+})
+</script>
