@@ -264,16 +264,27 @@ class PatientStatsForm(FlaskForm):
     )
     start_date = DateField(
         "조회시작일",
-        render_kw={"max": date.today().strftime("%Y-%m-%d")},
-        default=date.today().replace(month=date.today().month - 3),
         validators=[DataRequired("조회시작일은 필수 입력 항목입니다.")],
     )
     end_date = DateField(
         "조회종료일",
-        render_kw={"max": date.today().strftime("%Y-%m-%d")},
-        default=date.today().replace(day=date.today().day - 1),
         validators=[DataRequired("조회종료일은 필수 입력 항목입니다.")],
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        today = date.today()
+        today_str = today.strftime("%Y-%m-%d")
+
+        # Set max date for both fields
+        self.start_date.render_kw = {"max": today_str}
+        self.end_date.render_kw = {"max": today_str}
+
+        # Set default dates if not already set
+        if not self.start_date.data:
+            self.start_date.data = today.replace(month=today.month - 3)
+        if not self.end_date.data:
+            self.end_date.data = today.replace(day=today.day - 1)
 
 
 class WorkerStatsForm(FlaskForm):
@@ -282,13 +293,26 @@ class WorkerStatsForm(FlaskForm):
     )
     start_date = DateField(
         "조회시작일",
-        render_kw={"max": date.today().strftime("%Y-%m-%d")},
         default=date.today().replace(day=1),
         validators=[DataRequired("조회시작일은 필수 입력 항목입니다.")],
     )
     end_date = DateField(
         "조회종료일",
-        render_kw={"max": date.today().strftime("%Y-%m-%d")},
         default=date.today().replace(day=date.today().day - 1),
         validators=[DataRequired("조회종료일은 필수 입력 항목입니다.")],
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        today = date.today()
+        today_str = today.strftime("%Y-%m-%d")
+
+        # Set max date for both fields
+        self.start_date.render_kw = {"max": today_str}
+        self.end_date.render_kw = {"max": today_str}
+
+        # Set default dates if not already set
+        if not self.start_date.data:
+            self.start_date.data = today.replace(day=1)
+        if not self.end_date.data:
+            self.end_date.data = today.replace(day=today.day - 1)
