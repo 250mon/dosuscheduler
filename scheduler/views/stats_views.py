@@ -286,7 +286,6 @@ def worker_stats():
                 pt_mrn_name,
                 f"{active_count} - {canceled_count} - {noshow_count} ({total_counts})",
             )
-        print(more_stats)
 
         return render_template(
             "stats/worker_stats.html",
