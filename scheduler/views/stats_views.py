@@ -185,6 +185,7 @@ def worker_stats():
                 DosuSess.status,
                 DosuType.name.label("dosutype_name"),
                 Patient.id.label("patient_id"),
+                Patient.mrn.label("patient_mrn"),
                 Patient.name.label("patient_name"),
                 func.count(DosuSess.id).label("count"),
                 func.sum(DosuSess.price).label("total_amount"),
@@ -253,12 +254,13 @@ def worker_stats():
         # Accumulate counts for each patient and status
         for pt_stat in patient_stats:
             pt_id = pt_stat.patient_id
+            pt_mrn = pt_stat.patient_mrn
             pt_name = pt_stat.patient_name
-            pt_id_name = str(pt_id) + " " + pt_name
+            pt_mrn_name = f"{pt_mrn:0>5} {pt_name}"
 
             # Ensure the pt_id_name is in the dictionary
             # if it is a new patient, create a dict container which includes total counts
-            if pt_id_name not in status_counts:
+            if pt_mrn_name not in status_counts:
                 patient = db.session.scalar(
                     db.select(Patient).where(Patient.id == pt_id)
                 )
@@ -266,14 +268,14 @@ def worker_stats():
                 pt_total = f"{pt_total.get('active', 0)} - {pt_total.get('canceled', 0)} - {pt_total.get('noshow', 0)}"
 
                 # create an entry
-                status_counts[pt_id_name] = {}
-                status_counts[pt_id_name]["total_counts"] = pt_total
+                status_counts[pt_mrn_name] = {}
+                status_counts[pt_mrn_name]["total_counts"] = pt_total
 
             # Store counts based on the status
-            status_counts[pt_id_name].setdefault(pt_stat.status, pt_stat.count)
+            status_counts[pt_mrn_name].setdefault(pt_stat.status, pt_stat.count)
 
         # Compose the final result
-        for pt_id_name, status_counts in status_counts.items():
+        for pt_mrn_name, status_counts in status_counts.items():
             active_count = status_counts.get("active", 0)
             canceled_count = status_counts.get("canceled", 0)
             noshow_count = status_counts.get("noshow", 0)
@@ -281,9 +283,10 @@ def worker_stats():
 
             # the final string: active - canceled - noshow
             more_stats["환자별"].setdefault(
-                pt_id_name,
+                pt_mrn_name,
                 f"{active_count} - {canceled_count} - {noshow_count} ({total_counts})",
             )
+        print(more_stats)
 
         return render_template(
             "stats/worker_stats.html",
