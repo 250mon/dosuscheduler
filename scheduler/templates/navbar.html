@@ -125,7 +125,7 @@
                         </ul>
                     </li>
                 {% endif %}
-                {% if g.user.privilege == 5 %}
+                {% if g.user and g.user.privilege >= 3 %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle"
                            href="#"

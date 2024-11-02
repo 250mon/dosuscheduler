@@ -9,7 +9,7 @@
             <div class="col-md-5 mb-2">
                 <div class="input-group">
                     <span class="input-group-text">{{ form.id.label }}</span>
-                    {{ form.id(class="form-control") }}
+                    {{ form.id(class="form-control", readonly=True) if form.id.data else form.id(class="form-control") }}
                 </div>
             </div>
             <div class="col-md-5 mb-2">

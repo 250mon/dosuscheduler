@@ -1,7 +1,7 @@
-from datetime import date, datetime, time, timedelta
+from datetime import date, time, timedelta
 
+from dateutil.relativedelta import relativedelta
 from flask_wtf import FlaskForm
-from flask_wtf.recaptcha import validators
 from wtforms import (
     DateField,
     EmailField,
@@ -232,6 +232,7 @@ class UserModifyForm(FlaskForm):
         "Privilege",
         choices=[
             (5, "Admin"),
+            (3, "Therapist"),
             (1, "User"),
         ],
         default=1,
@@ -282,9 +283,10 @@ class PatientStatsForm(FlaskForm):
 
         # Set default dates if not already set
         if not self.start_date.data:
-            self.start_date.data = today.replace(month=today.month - 3)
+            self.start_date.data = today - relativedelta(months=3)
+
         if not self.end_date.data:
-            self.end_date.data = today.replace(day=today.day - 1)
+            self.end_date.data = today - timedelta(days=1)
 
 
 class WorkerStatsForm(FlaskForm):
@@ -298,7 +300,7 @@ class WorkerStatsForm(FlaskForm):
     )
     end_date = DateField(
         "조회종료일",
-        default=date.today().replace(day=date.today().day - 1),
+        default=date.today() - timedelta(days=1),
         validators=[DataRequired("조회종료일은 필수 입력 항목입니다.")],
     )
 
@@ -315,4 +317,4 @@ class WorkerStatsForm(FlaskForm):
         if not self.start_date.data:
             self.start_date.data = today.replace(day=1)
         if not self.end_date.data:
-            self.end_date.data = today.replace(day=today.day - 1)
+            self.end_date.data = today - timedelta(days=1)

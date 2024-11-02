@@ -20,6 +20,7 @@ def new_patient_count(year, month):
         .select_from(join(DosuSess, Patient, DosuSess.patient_id == Patient.id))
         .where(
             and_(
+                Patient.mrn != 0,
                 DosuSess.dosusess_date >= first_day,
                 DosuSess.dosusess_date <= last_day,
             )

@@ -60,6 +60,67 @@ class Patient(db.Model):
     def __repr__(self) -> str:
         return f"Patient(id={self.id!r}, mrn={self.mrn!r}, name={self.name!r})"
 
+    def get_status_counts(
+        self, start_date: date = date(1900, 1, 1), end_date: date = date(2999, 12, 31)
+    ) -> dict:
+        # Initialize dictionary to store counts
+        status_counts = {"total_amount": 0}
+        # Iterate through all dosusess for this patient
+        for dosusess in self.dosusess_set:
+            if start_date <= dosusess.dosusess_date <= end_date:
+                status = dosusess.status
+                status_counts[status] = status_counts.get(status, 0) + 1
+                if status == "active":
+                    status_counts["total_amount"] += dosusess.price
+
+        return dict(sorted(status_counts.items()))  # sort by keys
+
+    def get_dosutype_counts(
+        self, start_date: date = date(1900, 1, 1), end_date: date = date(2999, 12, 31)
+    ) -> dict:
+        # def get_dosutype_counts(self, start_date: date, end_date: date) -> dict:
+        # Initialize dictionary to store counts
+        dosutype_counts = {}
+        # Iterate through all dosusess for this patient
+        for dosusess in self.dosusess_set:
+            if start_date <= dosusess.dosusess_date <= end_date:
+                dosutype_name = dosusess.dosutype.name
+                status = dosusess.status
+                dosutype_counts.setdefault(dosutype_name, {}).setdefault(status, 0)
+                dosutype_counts[dosutype_name][status] += 1
+        # Sorting
+        return_dict = {}
+        # sorted by worker_id
+        for dt_name, status_dict in sorted(dosutype_counts.items()):
+            # sorted by status
+            sorted_status = dict(sorted(status_dict.items()))
+            return_dict[dt_name] = sorted_status
+
+        return return_dict
+
+    def get_worker_counts(
+        self, start_date: date = date(1900, 1, 1), end_date: date = date(2999, 12, 31)
+    ) -> dict:
+        # Initialize dictionary to store counts
+        worker_counts = {}
+        # Iterate through all dosusess for this patient
+        for dosusess in self.dosusess_set:
+            if start_date <= dosusess.dosusess_date <= end_date:
+                worker_id = dosusess.worker_id
+                status = dosusess.status
+                worker_counts.setdefault(worker_id, {}).setdefault(status, 0)
+                worker_counts[worker_id][status] += 1
+
+        # Sorting
+        return_dict = {}
+        # sorted by worker_id
+        for w_id, status_dict in sorted(worker_counts.items()):
+            # sorted by status
+            sorted_status = dict(sorted(status_dict.items()))
+            return_dict[w_id] = sorted_status
+
+        return return_dict
+
 
 class DosuType(db.Model):
     __tablename__ = "dosutype_table"

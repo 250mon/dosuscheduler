@@ -1,6 +1,15 @@
 from datetime import datetime
 
-from flask import Blueprint, flash, jsonify, render_template, request
+from flask import (
+    Blueprint,
+    flash,
+    g,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from sqlalchemy import func
 
 from scheduler import db
@@ -37,37 +46,17 @@ def patient_stats():
             flash(f"MRN({mrn}) does not exist.")
             return render_template("stats/patient_stats.html", form=form)
 
-        query = (
-            db.session.query(
-                DosuSess.status,
-                DosuType.name.label("dosutype_name"),
-                Worker.name.label("worker_name"),
-                func.count(DosuSess.id).label("count"),
-                func.sum(DosuSess.price).label("total_amount"),
-            )
-            .join(DosuSess.dosutype)
-            .join(DosuSess.worker)
-            .filter(
-                DosuSess.patient_id == patient.id,
-                DosuSess.dosusess_date.between(start_date, end_date),
-            )
-        )
-
-        status_stats = query.group_by(DosuSess.status).all()
-
+        # New one
+        status_counts = patient.get_status_counts(start_date, end_date)
         overview_stats = {
-            "total": 0,
-            "total_amount": 0,
-            "active": 0,
-            "canceled": 0,
-            "noshow": 0,
+            "total": status_counts.get("active", 0)
+            + status_counts.get("canceled", 0)
+            + status_counts.get("noshow", 0),
+            "total_amount": status_counts.get("total_amount", 0),
+            "active": status_counts.get("active", 0),
+            "canceled": status_counts.get("canceled", 0),
+            "noshow": status_counts.get("noshow", 0),
         }
-
-        for status_stat in status_stats:
-            overview_stats[status_stat.status] = status_stat.count
-            overview_stats["total"] += status_stat.count
-            if status_stat.status == "active":
-                overview_stats["total_amount"] += float(status_stat.total_amount or 0)
 
         if overview_stats["total"] != 0:
             noshow_rate = overview_stats["noshow"] / overview_stats["total"] * 100
@@ -80,17 +69,76 @@ def patient_stats():
             "치료사별": {},
         }
 
-        dosutype_stats = query.group_by(DosuType.name, DosuSess.status).all()
-        for dosutype_stat in dosutype_stats:
-            more_stats["도수타입별"][
-                f"{dosutype_stat.dosutype_name} - {dosutype_stat.status}"
-            ] = dosutype_stat.count
+        # per dosutype stats
+        dt_counts = patient.get_dosutype_counts(start_date, end_date)
+        for dt_name, status_dict in dt_counts.items():
+            for status, count in status_dict.items():
+                more_stats["도수타입별"][f"{dt_name} - {status}"] = count
 
-        worker_stats = query.group_by(Worker.name, DosuSess.status).all()
-        for worker_stat in worker_stats:
-            more_stats["치료사별"][
-                f"{worker_stat.worker_name} - {worker_stat.status}"
-            ] = worker_stat.count
+        # per worker stats
+        worker_counts = patient.get_worker_counts(start_date, end_date)
+        for worker_id, status_dict in worker_counts.items():
+            worker_name = db.session.scalar(
+                db.select(Worker.name).where(Worker.id == worker_id)
+            )
+            for status, count in status_dict.items():
+                more_stats["치료사별"][f"{worker_name} - {status}"] = count
+
+        # # Old one
+        # query = (
+        #     db.session.query(
+        #         DosuSess.status,
+        #         DosuType.name.label("dosutype_name"),
+        #         Worker.name.label("worker_name"),
+        #         func.count(DosuSess.id).label("count"),
+        #         func.sum(DosuSess.price).label("total_amount"),
+        #     )
+        #     .join(DosuSess.dosutype)
+        #     .join(DosuSess.worker)
+        #     .filter(
+        #         DosuSess.patient_id == patient.id,
+        #         DosuSess.dosusess_date.between(start_date, end_date),
+        #     )
+        # )
+        #
+        # status_stats = query.group_by(DosuSess.status).all()
+        #
+        # overview_stats = {
+        #     "total": 0,
+        #     "total_amount": 0,
+        #     "active": 0,
+        #     "canceled": 0,
+        #     "noshow": 0,
+        # }
+        #
+        # for status_stat in status_stats:
+        #     overview_stats[status_stat.status] = status_stat.count
+        #     overview_stats["total"] += status_stat.count
+        #     if status_stat.status == "active":
+        #         overview_stats["total_amount"] += float(status_stat.total_amount or 0)
+        #
+        # if overview_stats["total"] != 0:
+        #     noshow_rate = overview_stats["noshow"] / overview_stats["total"] * 100
+        #     overview_stats["noshow_rate"] = f"{round(noshow_rate)} %"
+        # else:
+        #     overview_stats["noshow_rate"] = "-"
+        #
+        # more_stats = {
+        #     "도수타입별": {},
+        #     "치료사별": {},
+        # }
+        #
+        # dosutype_stats = query.group_by(DosuType.name, DosuSess.status).all()
+        # for dosutype_stat in dosutype_stats:
+        #     more_stats["도수타입별"][
+        #         f"{dosutype_stat.dosutype_name} - {dosutype_stat.status}"
+        #     ] = dosutype_stat.count
+        #
+        # worker_stats = query.group_by(Worker.name, DosuSess.status).all()
+        # for worker_stat in worker_stats:
+        #     more_stats["치료사별"][
+        #         f"{worker_stat.worker_name} - {worker_stat.status}"
+        #     ] = worker_stat.count
 
         return render_template(
             "stats/patient_stats.html",
@@ -106,6 +154,16 @@ def patient_stats():
 @bp.route("/api/worker_stats", methods=["GET", "POST"])
 def worker_stats():
     form = WorkerStatsForm()
+    if g.user and g.user.privilege == 3:
+        worker = db.session.execute(
+            db.select(Worker).filter_by(user_id=g.user.id)
+        ).scalar_one_or_none()
+        if worker:
+            form.id.data = worker.id
+        else:
+            flash(f"No matching worker for the user found.")
+            return redirect(url_for("main.monthly"))
+
     if request.method == "POST" and form.validate_on_submit():
         id = form.id.data
         start_date = form.start_date.data
@@ -118,11 +176,15 @@ def worker_stats():
         if worker is None:
             flash(f"id({id}) does not exist.")
             return render_template("stats/worker_stats.html", form=form)
+        elif g.user.privilege == 3 and g.user.id != worker.user_id:
+            flash(f"id({id}) does not match to the user.")
+            return render_template("stats/worker_stats.html", form=form)
 
         query = (
             db.session.query(
                 DosuSess.status,
                 DosuType.name.label("dosutype_name"),
+                Patient.id.label("patient_id"),
                 Patient.name.label("patient_name"),
                 func.count(DosuSess.id).label("count"),
                 func.sum(DosuSess.price).label("total_amount"),
@@ -163,13 +225,65 @@ def worker_stats():
             "환자별": {},
         }
 
+        # per dosutype, counts status
         dosutype_stats = query.group_by(DosuType.name, DosuSess.status).all()
-        dosutype_counts = status_count(dosutype_stats, "dosutype")
-        more_stats["도수타입별"] = dosutype_counts
+        status_counts = {}
+        # Accumulate counts for each dosutype and status
+        for dosutype_stat in dosutype_stats:
+            dt_name = dosutype_stat.dosutype_name
+            # Ensure the dosutype is in the dictionary
+            status_counts.setdefault(dt_name, {})
+            # Store counts based on the status
+            status_counts[dt_name].setdefault(dosutype_stat.status, dosutype_stat.count)
 
-        patient_stats = query.group_by(Patient.name, DosuSess.status).all()
-        patient_counts = status_count(patient_stats, "patient")
-        more_stats["환자별"] = patient_counts
+        # Compose the result for dosutype
+        for dt_name, status_counts in status_counts.items():
+            active_count = status_counts.get("active", 0)
+            canceled_count = status_counts.get("canceled", 0)
+            noshow_count = status_counts.get("noshow", 0)
+
+            # the final string: active - canceled - noshow
+            more_stats["도수타입별"].setdefault(
+                dt_name, f"{active_count} - {canceled_count} - {noshow_count}"
+            )
+
+        # per patient, counts status
+        patient_stats = query.group_by(Patient.id, DosuSess.status).all()
+        status_counts = {}
+        # Accumulate counts for each patient and status
+        for pt_stat in patient_stats:
+            pt_id = pt_stat.patient_id
+            pt_name = pt_stat.patient_name
+            pt_id_name = str(pt_id) + " " + pt_name
+
+            # Ensure the pt_id_name is in the dictionary
+            # if it is a new patient, create a dict container which includes total counts
+            if pt_id_name not in status_counts:
+                patient = db.session.scalar(
+                    db.select(Patient).where(Patient.id == pt_id)
+                )
+                pt_total = patient.get_status_counts()
+                pt_total = f"{pt_total.get('active', 0)} - {pt_total.get('canceled', 0)} - {pt_total.get('noshow', 0)}"
+
+                # create an entry
+                status_counts[pt_id_name] = {}
+                status_counts[pt_id_name]["total_counts"] = pt_total
+
+            # Store counts based on the status
+            status_counts[pt_id_name].setdefault(pt_stat.status, pt_stat.count)
+
+        # Compose the final result
+        for pt_id_name, status_counts in status_counts.items():
+            active_count = status_counts.get("active", 0)
+            canceled_count = status_counts.get("canceled", 0)
+            noshow_count = status_counts.get("noshow", 0)
+            total_counts = status_counts.get("total_counts", 0)
+
+            # the final string: active - canceled - noshow
+            more_stats["환자별"].setdefault(
+                pt_id_name,
+                f"{active_count} - {canceled_count} - {noshow_count} ({total_counts})",
+            )
 
         return render_template(
             "stats/worker_stats.html",
@@ -180,38 +294,6 @@ def worker_stats():
         )
 
     return render_template("stats/worker_stats.html", form=form)
-
-
-def status_count(target_stats, stats_name):
-    # Initialize a dictionary to accumulate counts per dosutype and status
-    status_counts = {}
-
-    # Accumulate counts for each item and status
-    for target_stat in target_stats:
-        if stats_name == "dosutype":
-            item_name = target_stat.dosutype_name
-        else:
-            item_name = target_stat.patient_name
-        status = target_stat.status
-
-        # Ensure the dosutype is in the dictionary
-        status_counts.setdefault(item_name, {})
-        # Store counts based on the status
-        status_counts[item_name].setdefault(target_stat.status, target_stat.count)
-
-    # Compose the final result
-    result = {}
-    for item_name, status_counts in status_counts.items():
-        active_count = status_counts.get("active", 0)
-        canceled_count = status_counts.get("canceled", 0)
-        noshow_count = status_counts.get("noshow", 0)
-
-        # the final string: active - canceled - noshow
-        result.setdefault(
-            item_name, f"{active_count} - {canceled_count} - {noshow_count}"
-        )
-
-    return result
 
 
 @bp.route("/api/dosusess_stats", methods=["POST"])

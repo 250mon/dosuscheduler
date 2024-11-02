@@ -184,11 +184,27 @@ const generateCalendar = (
   const newPtCountDiv = $("#newPatientCount");
   newPtCountDiv.empty();
   $.each(newPatientCount, (index, npcEntry) => {
-    const { worker_name, count, patient_name } = npcEntry;
-    workerNpcDiv = $("<div>");
-    workerNpcDiv.text(`${worker_name}: ${count}`);
-    workerNpcDiv.appendTo(newPtCountDiv);
+    const { worker_name, count, patient_names } = npcEntry;
+    console.log(typeof patient_names, patient_names);
+    $("<div>")
+      .attr("type", "button")
+      .addClass("btn")
+      .attr("data-bs-toggle", "popover")
+      .attr("data-bs-title", worker_name)
+      .attr("data-bs-content", patient_names.join(", "))
+      .text(`${worker_name}: ${count}`)
+      .appendTo(newPtCountDiv);
   });
+
+  // initialize popover using jQuery with options
+  $('[data-bs-toggle="popover"]').popover({
+    trigger: "hover",
+    placement: "down",
+    html: true,
+    delay: { show: 100, hide: 100 },
+    container: "body",
+  });
+
   // update calendar body
   const calendarBody = $(".calendar-body");
   calendarBody.empty();
