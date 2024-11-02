@@ -196,10 +196,10 @@ const generateCalendar = (
       .appendTo(newPtCountDiv);
   });
 
-  // initialize popover using jQuery with options
+  // initialize popovers
   $('[data-bs-toggle="popover"]').popover({
     trigger: "hover",
-    placement: "down",
+    placement: "top",
     html: true,
     delay: { show: 100, hide: 100 },
     container: "body",
