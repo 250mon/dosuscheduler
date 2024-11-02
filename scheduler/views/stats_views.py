@@ -173,7 +173,7 @@ def worker_stats():
         worker = db.session.execute(
             db.select(Worker).filter_by(id=id)
         ).scalar_one_or_none()
-        if worker is None:
+        if id != 0 and worker is None:
             flash(f"id({id}) does not exist.")
             return render_template("stats/worker_stats.html", form=form)
         elif g.user.privilege == 3 and g.user.id != worker.user_id:
@@ -193,7 +193,7 @@ def worker_stats():
             .join(DosuSess.dosutype)
             .join(DosuSess.patient)
             .filter(
-                DosuSess.worker_id == worker.id,
+                DosuSess.worker_id == worker.id if id != 0 else True,
                 Patient.mrn != 0,
                 DosuSess.dosusess_date.between(start_date, end_date),
             )

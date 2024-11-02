@@ -112,7 +112,10 @@ class WorkerForm(FlaskForm):
     user_id = IntegerField(
         "유저번호",
         default=1,
-        validators=[DataRequired("유저번호는 필수 입력 항목입니다.")],
+        validators=[
+            InputRequired("유저번호는 필수 입력 항목입니다."),
+            NumberRange(min=1),
+        ],
     )
     name = StringField(
         "이 름", validators=[DataRequired("이름은 필수 입력 항목입니다.")]
@@ -194,7 +197,11 @@ class DosusessForm(FlaskForm):
         "날 짜", validators=[DataRequired("날짜는 필수 입력 항목입니다")]
     )
     slot = IntegerField(
-        "타임슬롯번호", validators=[DataRequired("타임슬롯번호는 필수 입력 항목입니다")]
+        "타임슬롯번호",
+        validators=[
+            InputRequired("타임슬롯번호는 필수 입력 항목입니다"),
+            NumberRange(min=0),
+        ],
     )
     status = StringField(
         "상 태", validators=[DataRequired("상태는 필수 입력 항목입니다.")]
@@ -261,7 +268,11 @@ class UserLoginForm(FlaskForm):
 
 class PatientStatsForm(FlaskForm):
     mrn = IntegerField(
-        "환자번호", validators=[DataRequired("환자번호는 필수 입력 항목입니다.")]
+        "환자번호",
+        validators=[
+            InputRequired("환자번호는 필수 입력 항목입니다."),
+            NumberRange(min=0),
+        ],
     )
     start_date = DateField(
         "조회시작일",
@@ -291,7 +302,11 @@ class PatientStatsForm(FlaskForm):
 
 class WorkerStatsForm(FlaskForm):
     id = IntegerField(
-        "치료사번호", validators=[DataRequired("치료사번호는 필수 입력 항목입니다.")]
+        "치료사번호",
+        validators=[
+            InputRequired("치료사번호는 필수 입력 항목입니다."),
+            NumberRange(min=0),
+        ],
     )
     start_date = DateField(
         "조회시작일",
