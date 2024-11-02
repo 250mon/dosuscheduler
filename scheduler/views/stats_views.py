@@ -256,7 +256,7 @@ def worker_stats():
             pt_id = pt_stat.patient_id
             pt_mrn = pt_stat.patient_mrn
             pt_name = pt_stat.patient_name
-            pt_mrn_name = f"{pt_mrn:0>5} {pt_name}"
+            pt_mrn_name = f"{pt_mrn} {pt_name}"
 
             # Ensure the pt_id_name is in the dictionary
             # if it is a new patient, create a dict container which includes total counts

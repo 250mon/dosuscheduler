@@ -77,11 +77,11 @@
                             <h5 class="card-title">{{ stats }}</h5>
                             <div class="row row-cols-2 row-cols-md-4">
                                 {% for item in more_stats[stats] %}
-                                    <div class="col d-flex justify-content-start align-items-center">
-                                        <div class="me-4">
-                                            <strong>{{ item }}:</strong>
+                                    <div class="col justify-content-start align-items-center">
+                                        <div>
+                                            <strong>{{ item }}</strong>
                                         </div>
-                                        <div>{{ more_stats[stats][item] }}</div>
+                                        <div class="mb-3">{{ more_stats[stats][item] }}</div>
                                     </div>
                                 {% endfor %}
                             </div>
