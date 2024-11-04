@@ -25,7 +25,7 @@
                     <th scope="col">상 태</th>
                     <th scope="col">치료사</th>
                     <th scope="col">도수타입</th>
-                    <th scope="col" class="max-width">노 트</th>
+                    <th scope="col">생성시간</th>
                 </tr>
             </thead>
             <tbody>
@@ -39,9 +39,7 @@
                             <td>{{ dosusess.status }}</td>
                             <td>{{ dosusess.worker.name }}</td>
                             <td>{{ dosusess.dosutype.name }}</td>
-                            <td>
-                                <div class="limited-text">{{ dosusess.note }}</div>
-                            </td>
+                            <td>{{ dosusess.created_at | format_date_time }}</td>
                         </tr>
                     {% endfor %}
                 {% else %}

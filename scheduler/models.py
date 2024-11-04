@@ -368,6 +368,7 @@ def format_dosusess_detail(row):
         "status": row.DosuSess.status,
         "note": row.DosuSess.note,
         "is_first": row.DosuSess.is_first,
+        "created_at": row.DosuSess.created_at,
     }
     return sess
 

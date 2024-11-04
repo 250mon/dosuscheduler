@@ -43,6 +43,15 @@ def format_time(value, format="%H:%M"):
     return value
 
 
+def format_date_time(value, format="%Y-%m-%d %H:%M:%S"):
+    """
+    Format a date in a given format
+    """
+    if isinstance(value, (datetime, time)):
+        return value.strftime(format)
+    return value
+
+
 def format_currency(value):
     """
     Format currency. Accepts numbers or string numbers and returns formatted string with commas.
@@ -68,4 +77,5 @@ bp.add_app_template_filter(format_kr_date)
 bp.add_app_template_filter(format_birthday_date)
 bp.add_app_template_filter(format_date)
 bp.add_app_template_filter(format_time)
+bp.add_app_template_filter(format_date_time)
 bp.add_app_template_filter(format_currency)
