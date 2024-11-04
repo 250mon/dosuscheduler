@@ -8,6 +8,7 @@
 !Pipfile*
 !requirements.txt
 !Procfile
+!dosu.env
 !*.py
 !*.js
 !*.html
