@@ -45,13 +45,20 @@ def format_time(value, format="%H:%M"):
 
 def format_currency(value):
     """
-    Format currency
+    Format currency. Accepts numbers or string numbers and returns formatted string with commas.
+    Returns original value if not a valid number.
     """
-    if isinstance(value, float):
-        value = int(value)
+    try:
+        # Try to convert to float first to handle string numbers like "1234" or "1234.56"
+        if isinstance(value, str):
+            value = float(value)
 
-    if isinstance(value, int):
-        return "{:,}".format(value)
+        # Convert to integer (removing decimal points)
+        if isinstance(value, (int, float)):
+            return f"{int(value):,}"
+
+    except (ValueError, TypeError):
+        pass
 
     return value
 

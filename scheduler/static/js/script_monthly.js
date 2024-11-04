@@ -182,27 +182,20 @@ const generateCalendar = (
 ) => {
   // update new patient count
   const newPtCountDiv = $("#newPatientCount");
-  newPtCountDiv.empty();
+  newPtCountDiv
+    .empty()
+    .on(
+      "click",
+      () =>
+        (window.location.href = `/stats/new_patient_count/${year}/${month}`),
+    );
   $.each(newPatientCount, (index, npcEntry) => {
-    const { worker_name, count, patient_names } = npcEntry;
-    console.log(typeof patient_names, patient_names);
+    const { worker_name, count } = npcEntry;
     $("<div>")
       .attr("type", "button")
       .addClass("btn")
-      .attr("data-bs-toggle", "popover")
-      .attr("data-bs-title", worker_name)
-      .attr("data-bs-content", patient_names.join(", "))
       .text(`${worker_name}: ${count}`)
       .appendTo(newPtCountDiv);
-  });
-
-  // initialize popovers
-  $('[data-bs-toggle="popover"]').popover({
-    trigger: "hover",
-    placement: "top",
-    html: true,
-    delay: { show: 100, hide: 100 },
-    container: "body",
   });
 
   // update calendar body

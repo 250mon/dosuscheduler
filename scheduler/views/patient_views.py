@@ -21,7 +21,7 @@ def patient_list():
         patient_list = db.select(Patient).order_by(Patient.id.desc())
 
     if kw:
-        search = "%%{}%%".format(kw)
+        search = f"%{kw}%"
         patient_list = patient_list.filter(
             Patient.mrn.ilike(search)
             | Patient.name.ilike(search)
@@ -36,32 +36,6 @@ def patient_list():
         per_page=10,
     )
     return render_template("patient/list.html", pagination=pagination, kw=kw, so=so)
-
-
-@bp.route("/dosusess_list/<int:id>")
-def dosusess_lit(id):
-    kw = request.args.get("kw", type=str, default="")
-    page = request.args.get("page", type=int, default=1)
-
-    dosusess_list = (
-        db.select(DosuSess).filter_by(patient_id=id).order_by(DosuSess.id.desc())
-    )
-
-    if kw:
-        search = "%%{}%%".format(kw)
-        dosusess_list = dosusess_list.filter(
-            DosuSess.note.ilike(search)
-            | DosuSess.status.ilike(search)
-            | DosuSess.dosusess_date.ilike(search)
-            | DosuSess.dosutype.name.ilike(search)
-        ).distinct()
-
-    pagination = db.paginate(
-        dosusess_list,
-        page=page,
-        per_page=10,
-    )
-    return render_template("patient/list.html", pagination=pagination, kw=kw)
 
 
 @bp.route("/create", methods=["GET", "POST"])
@@ -137,7 +111,7 @@ def patient_detail(id):
     )
 
     if kw:
-        search = "%%{}%%".format(kw)
+        search = f"%{kw}%"
         dosusess_list = (
             dosusess_list.join(DosuSess.worker)
             .join(DosuSess.dosutype)

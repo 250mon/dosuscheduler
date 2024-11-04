@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}신환 리스트{% endblock %}
+{% block content %}
+    <h1 class="my-4">신환 리스트</h1>
+    <div class="container my-3">
+        <div class="row justify-content-between mb-4">
+            {% for stat in stats %}<h3 class="col-4 text-center">{{ stat.name }}: {{ stat.count }}</h3>{% endfor %}
+        </div>
+        <div class="row justify-content-between mb-4">
+            <!-- Search -->
+            <div class="col-8">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="kwInput" value="{{ kw or '' }}">
+                    <button type="button" class="btn btn-outline-secondary" id="searchBtn">Search</button>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped text-center">
+            <thead>
+                <tr>
+                    <th scope="col">번 호</th>
+                    <th scope="col">환자번호</th>
+                    <th scope="col">이 름</th>
+                    <th scope="col">날 짜</th>
+                    <th scope="col">상 태</th>
+                    <th scope="col">치료사</th>
+                    <th scope="col">도수타입</th>
+                    <th scope="col" class="max-width">노 트</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pagination %}
+                    {% for dosusess in pagination %}
+                        <tr class="text-center align-middle">
+                            <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) -loop.index0 }}</td>
+                            <td>{{ dosusess.patient.mrn }}</td>
+                            <td>{{ dosusess.patient.name }}</td>
+                            <td>{{ dosusess.dosusess_date }}</td>
+                            <td>{{ dosusess.status }}</td>
+                            <td>{{ dosusess.worker.name }}</td>
+                            <td>{{ dosusess.dosutype.name }}</td>
+                            <td>
+                                <div class="limited-text">{{ dosusess.note }}</div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3">해당 기록이 없습니다</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        <!-- Paging -->
+        <nav aria-label="...">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a href="#" class="page-link" data-page="{{ pagination.prev_num }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+                {% for page in pagination.iter_pages() %}
+                    {% if page %}
+                        {% if page != pagination.page %}
+                            <li class="page-item">
+                                <a href="#" class="page-link" data-page="{{ page }}">{{ page }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a href="#" class="page-link" data-page="{{ pagination.next_num }}">Next</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <form id="searchForm"
+          method="get"
+          action="{{ url_for("stats.new_patient_count", year=year, month=month) }}">
+        <input type="hidden" id="kwFormInput" name="kw" value="{{ kw or '' }}">
+        <input type="hidden" id="pageFormInput" name="page" value="{{ page }}">
+    </form>
+{% endblock %}
+{% block script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pageLinkEls = document.querySelectorAll(".page-link");
+            const searchFormEl = document.getElementById("searchForm");
+            const kwInputEl = document.getElementById("kwInput");
+            const kwInputFormEl = document.getElementById("kwFormInput");
+            const pageInputFormEl = document.getElementById("pageFormInput");
+            const searchBtnEl = document.getElementById("searchBtn");
+
+            pageLinkEls.forEach(function(pageLinkEl){
+                pageLinkEl.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    pageInputFormEl.value = this.getAttribute('data-page');
+                    searchFormEl.submit();
+                });
+            });
+
+            const searchFn = function(e) {
+                e.preventDefault();
+                const searchKw = kwInputEl.value;
+                kwInputFormEl.value = searchKw;
+                pageInputFormEl.value = 1;
+                searchFormEl.submit();
+            };
+            searchBtnEl.addEventListener('click', searchFn);
+            kwInputEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    searchFn(e);
+                }
+            });
+
+        });
+    </script>
+{% endblock %}

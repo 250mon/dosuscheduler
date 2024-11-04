@@ -103,6 +103,15 @@
             <span class="input-group-text">메모</span>
             <textarea class="form-control" id="note" name="note">{{ dosusess.note }}</textarea>
         </div>
+        <div class="form-check mb-5">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="is_first"
+                   id="isFirstCheck"
+                   value="True"
+                   {% if dosusess.is_first %}checked{% endif %}>
+            <label class="form-check-label" for="isFirstCheck">신 환</label>
+        </div>
         <button type="submit" class="btn btn-primary" href="{{ next }}">저 장</button>
         <button type="button"
                 class="btn btn-warning"

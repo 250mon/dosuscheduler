@@ -10,7 +10,7 @@ from flask import (
     request,
     url_for,
 )
-from sqlalchemy import func
+from sqlalchemy import extract, func
 
 from scheduler import db
 from scheduler.forms import PatientStatsForm, WorkerStatsForm
@@ -325,3 +325,78 @@ def dosusess_stats():
         }
 
         return jsonify(result)
+
+
+@bp.route("/new_patient_count/<int:year>/<int:month>")
+def new_patient_count(year=None, month=None, stats_only=False):
+    if year is None or month is None:
+        today = datetime.today()
+        year = today.year
+        month = today.month
+
+    kw = request.args.get("kw", type=str, default="")
+    page = request.args.get("page", type=int, default=1)
+
+    # Create base query with common conditions
+    base_condition = [
+        extract("year", DosuSess.dosusess_date) == year,
+        extract("month", DosuSess.dosusess_date) == month,
+        DosuSess.status == "active",
+        DosuSess.is_first == True,
+    ]
+
+    # Get stats using the base conditions
+    stats = db.session.execute(
+        db.select(Worker.name, func.count(DosuSess.id).label("count"))
+        .join(DosuSess.worker)
+        .where(*base_condition)
+        .group_by(Worker.name)
+    ).all()
+
+    if stats_only:
+        stats_dict = [
+            {
+                "worker_name": row.name,
+                "count": row.count,
+            }
+            for row in stats
+        ]
+        return stats_dict
+
+    # Build main query using the same base conditions
+    dosusess_list = (
+        db.select(DosuSess)
+        .join(DosuSess.worker)
+        .join(DosuSess.patient)
+        .where(*base_condition)
+        .order_by(DosuSess.created_at.desc())
+    )
+
+    # Add search conditions if keyword provided
+    if kw:
+        search = f"%{kw}%"
+        dosusess_list = (
+            dosusess_list.join(DosuSess.dosutype)
+            .where(
+                db.or_(
+                    Worker.name.ilike(search),
+                    Patient.name.ilike(search),
+                    Patient.mrn.ilike(search),
+                    DosuType.name.ilike(search),
+                    DosuSess.note.ilike(search),
+                    DosuSess.dosusess_date.cast(db.String).ilike(search),
+                )
+            )
+            .distinct()
+        )
+
+    pagination = db.paginate(dosusess_list, page=page, per_page=10)
+
+    return render_template(
+        "stats/new_patient_count.html",
+        year=year,
+        month=month,
+        pagination=pagination,
+        stats=stats,
+        kw=kw,
+    )

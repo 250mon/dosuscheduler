@@ -257,6 +257,7 @@ class DosuSess(db.Model):
     price: Mapped[int] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String)
     note: Mapped[str] = mapped_column(Text)
+    is_first: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, onupdate=datetime.now
@@ -366,6 +367,7 @@ def format_dosusess_detail(row):
         "patient_note": row.Patient.note,
         "status": row.DosuSess.status,
         "note": row.DosuSess.note,
+        "is_first": row.DosuSess.is_first,
     }
     return sess
 

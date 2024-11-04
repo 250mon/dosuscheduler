@@ -26,7 +26,7 @@ from scheduler.models import (
     get_or_create,
     get_timeslot_config,
 )
-from scheduler.stats import new_patient_count
+from scheduler.views.stats_views import new_patient_count
 
 bp = Blueprint("dosusess", __name__, url_prefix="/dosusess")
 
@@ -139,6 +139,7 @@ def dosusess_create():
         except Exception as e:
             return e, 404
         note = request.form.get("note", "")
+        is_first = request.form.get("is_first", "") == "True"
 
         # Get the dosutype of the id
         dosutype = db.session.execute(
@@ -199,6 +200,7 @@ def dosusess_create():
                 patient_id=patient.id,
                 status="active",
                 note=note,
+                is_first=is_first,
             )
             for slot_number in range(slot, slot + quantity):
                 ts = TimeSlot(
@@ -245,9 +247,9 @@ def dosusess_update():
         # Get form data
         # theses are the data that are always included in the post req
         status = request.form.get("status", "")
-        note = request.form.get("note", "")
         dosusess.status = status
-        dosusess.note = note
+        dosusess.note = request.form.get("note", "")
+        dosusess.is_first = request.form.get("is_first", "") == "True"
         _date = request.form.get("dosusess_date", "")
 
         # if the current status_filter is set to 'active' and the status is 'active',
@@ -322,7 +324,6 @@ def dosusess_update():
             session["status_filter"] = "active"
             return render_update_html(id, next_url)
 
-        print(dosusess.note)
         try:
             # Commit changes to the database
             db.session.commit()
@@ -330,7 +331,6 @@ def dosusess_update():
         except Exception as e:
             db.session.rollback()
             flash(f"dosusess: Failed updating {id}: {e}")
-        print("updated")
 
     return render_update_html(id, next_url)
 
@@ -389,7 +389,7 @@ def get_schedule_route():
 
             # Return the schedule as a JSON response
             tsc = get_timeslot_config(year, month)
-            npc = new_patient_count(year, month)
+            npc = new_patient_count(year, month, stats_only=True)
 
             return jsonify(
                 schedule=schedule, timeslotConfig=tsc.to_dict(), newPatientCount=npc

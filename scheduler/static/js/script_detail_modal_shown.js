@@ -47,8 +47,9 @@ $(document).ready(function () {
             $("#modalDetailDosusessDate").text(sess.date_display);
             $("#modalDetailSlot").text(sess.slot_display);
             $("#modalDetailDosutype").text(sess.dosutype_name);
-            $(`#modalDetailStatus-${sess.status}`).prop("checked", true);
+            $(`#modalDetailStatus-${sess.status}`).attr("checked", true);
             $("#modalDetailNote").text(sess.note);
+            $("#modalDetailIsFirstCheck").attr("checked", sess.is_first);
             if (
               userPrivilege > 2 ||
               isDateNoEarlierThanToday(new Date(sess.date))

@@ -1,5 +1,5 @@
 <!-- Basic patient info -->
-<div class="col mb-5">
+<div class="col mb-3">
     <table class="table table-striped">
         <tr>
             <th>환자번호</th>
@@ -43,7 +43,7 @@
       action="{{ url_for('dosusess.dosusess_update', id=0, next=request.full_path) }}"
       method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-    <div class="mb-3 row">
+    <div class="mb-2 row">
         <label class="col-sm-2 col-form-label">상 태:</label>
         <div class="form-check-inline col-sm-9">
             <input type="radio"
@@ -75,5 +75,13 @@
                   id="modalDetailNote"
                   name="note"
                   style="height: 200px"></textarea>
+    </div>
+    <div class="form-check mb-2">
+        <input class="form-check-input"
+               type="checkbox"
+               name="is_first"
+               id="modalDetailIsFirstCheck"
+               value="True">
+        <label class="form-check-label" for="isFirstCheck">신 환</label>
     </div>
 </form>

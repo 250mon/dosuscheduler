@@ -3,6 +3,7 @@ from datetime import date, time, timedelta
 from dateutil.relativedelta import relativedelta
 from flask_wtf import FlaskForm
 from wtforms import (
+    BooleanField,
     DateField,
     EmailField,
     IntegerField,
