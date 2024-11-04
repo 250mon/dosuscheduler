@@ -228,15 +228,6 @@ def dosusess_create():
     return redirect(url_for("main.monthly"))
 
 
-@bp.route("/detail/<int:id>", methods=["GET", "POST"])
-def dosusess_detail(id):
-    dosusess = get_dosusess_detail_by_id(id)
-    if dosusess:
-        return render_template("dosusess/detail.html", dosusess=dosusess)
-    else:
-        return jsonify({"error": "dosusess not found"}), 404
-
-
 @bp.route("/update", methods=["GET", "POST"])
 def dosusess_update():
     id = int(request.args.get("id", ""))
