@@ -26,6 +26,7 @@ from scheduler.models import (
     get_or_create,
     get_timeslot_config,
 )
+from scheduler.stats import new_patient_count_auto
 from scheduler.views.stats_views import new_patient_count
 
 bp = Blueprint("dosusess", __name__, url_prefix="/dosusess")
@@ -381,9 +382,13 @@ def get_schedule_route():
             # Return the schedule as a JSON response
             tsc = get_timeslot_config(year, month)
             npc = new_patient_count(year, month, stats_only=True)
+            npc_auto = new_patient_count_auto(year, month)
 
             return jsonify(
-                schedule=schedule, timeslotConfig=tsc.to_dict(), newPatientCount=npc
+                schedule=schedule,
+                timeslotConfig=tsc.to_dict(),
+                newPatientCount=npc,
+                newPatientCountAuto=npc_auto,
             )
 
         except ValueError as e:

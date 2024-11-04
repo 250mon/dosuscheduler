@@ -7,8 +7,8 @@ from scheduler import db
 from scheduler.models import DosuSess, Patient, Worker
 
 
-# Obolete
-def new_patient_count(year, month):
+# automatic count
+def new_patient_count_auto(year, month):
     first_day = date(year, month, 1)
     last_day = date(year, month, calendar.monthrange(year, month)[1])
 

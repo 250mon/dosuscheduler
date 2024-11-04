@@ -179,11 +179,13 @@ const generateCalendar = (
   mSchedule,
   timeslotConfig,
   newPatientCount,
+  newPatientCountAuto,
 ) => {
   // update new patient count
   const newPtCountDiv = $("#newPatientCount");
   newPtCountDiv
     .empty()
+    .attr("type", "button")
     .on(
       "click",
       () =>
@@ -191,12 +193,31 @@ const generateCalendar = (
     );
   $.each(newPatientCount, (index, npcEntry) => {
     const { worker_name, count } = npcEntry;
+    $("<div>").text(`${worker_name}: ${count}`).appendTo(newPtCountDiv);
+  });
+
+  // update new patient count auto
+  const newPtCountAutoDiv = $("#newPatientCountAuto").empty();
+  $.each(newPatientCountAuto, (index, npcEntry) => {
+    const { worker_name, count, patient_names } = npcEntry;
     $("<div>")
       .attr("type", "button")
-      .addClass("btn")
+      .attr("data-bs-container", "body")
+      .attr("data-bs-toggle", "popover")
+      .attr("data-bs-trigger", "hover")
+      .attr("data-bs-placement", "top")
+      .attr("data-bs-title", worker_name)
+      .attr("data-bs-content", patient_names.join(", "))
       .text(`${worker_name}: ${count}`)
-      .appendTo(newPtCountDiv);
+      .appendTo(newPtCountAutoDiv);
   });
+
+  const popoverTriggerList = document.querySelectorAll(
+    '[data-bs-toggle="popover"]',
+  );
+  const popoverList = [...popoverTriggerList].map(
+    (popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl),
+  );
 
   // update calendar body
   const calendarBody = $(".calendar-body");
@@ -254,7 +275,15 @@ const fetchSchedule = async (year, month) => {
       const mSchedule = data.schedule;
       const timeslotConfig = data.timeslotConfig;
       const newPatientCount = data.newPatientCount;
-      generateCalendar(year, month, mSchedule, timeslotConfig, newPatientCount);
+      const newPatientCountAuto = data.newPatientCountAuto;
+      generateCalendar(
+        year,
+        month,
+        mSchedule,
+        timeslotConfig,
+        newPatientCount,
+        newPatientCountAuto,
+      );
     });
 };
 
