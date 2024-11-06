@@ -311,12 +311,10 @@ class WorkerStatsForm(FlaskForm):
     )
     start_date = DateField(
         "조회시작일",
-        default=date.today().replace(day=1),
         validators=[DataRequired("조회시작일은 필수 입력 항목입니다.")],
     )
     end_date = DateField(
         "조회종료일",
-        default=date.today() - timedelta(days=1),
         validators=[DataRequired("조회종료일은 필수 입력 항목입니다.")],
     )
 

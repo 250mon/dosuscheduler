@@ -50,9 +50,11 @@ $(document).ready(function () {
             $(`#modalDetailStatus-${sess.status}`).attr("checked", true);
             $("#modalDetailNote").text(sess.note);
             $("#modalDetailIsFirstCheck").attr("checked", sess.is_first);
+            const sess_date = new Date(sess.date);
             if (
-              userPrivilege > 2 ||
-              isDateNoEarlierThanToday(new Date(sess.date))
+              userPrivilege > 3 ||
+              (userPrivilege == 3 && isNoEarlierThanFirstday(sess_date)) ||
+              isNoEarlierThanToday(sess_date)
             ) {
               if (sess.status === "active") {
                 $("#detailModalUpdateBtn").css("display", "");
@@ -75,9 +77,17 @@ $(document).ready(function () {
   }
 });
 
-const isDateNoEarlierThanToday = (date) => {
+const isNoEarlierThanToday = (date) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   date.setHours(0, 0, 0, 0);
   return date >= today;
+};
+
+const isNoEarlierThanFirstday = (date) => {
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  firstDayOfMonth.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+  return date >= firstDayOfMonth;
 };
