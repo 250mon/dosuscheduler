@@ -140,12 +140,14 @@
                             <li>
                                 <a class="dropdown-item" href="{{ url_for("stats.worker_stats") }}">치료사 통계</a>
                             </li>
+                        {% if g.user.privilege >= 4 %}
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('stats.monthly_stats') }}">월별 통계</a>
                             </li>
+                        {% endif %}
                         </ul>
                     </li>
                 {% endif %}
