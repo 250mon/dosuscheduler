@@ -1,4 +1,5 @@
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
+from datetime import date
 
 from scheduler import db
 from scheduler.forms import PatientForm
@@ -131,11 +132,14 @@ def patient_detail(id):
         per_page=10,
     )
 
+    today = date.today()
+
     return render_template(
         "patient/detail.html",
         patient=patient,
         pagination=pagination,
         kw=kw,
+        today=today,
     )
 
 

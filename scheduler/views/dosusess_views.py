@@ -240,6 +240,10 @@ def dosusess_update():
         # theses are the data that are always included in the post req
         status = request.form.get("status", "")
         dosusess.status = status
+        if status != "active":
+            dosusess.price = 0
+        else:
+            dosusess.price = dosusess.dosutype.price
         dosusess.note = request.form.get("note", "")
         dosusess.is_first = request.form.get("is_first", "") == "True"
         _date = request.form.get("dosusess_date", "")

@@ -49,22 +49,42 @@
                 </div>
             </div>
         </div>
+        <div class="mb-3">
+            <span class="status-circle status-past"></span> 지난 세션
+            <span class="status-circle status-today ms-3"></span> 오늘 세션
+            <span class="status-circle status-future ms-3"></span> 예정된 세션
+            <span class="status-circle status-noshow ms-3"></span> 노쇼
+            <span class="status-circle status-canceled ms-3"></span> 취소
+        </div>
         <table class="table table-striped text-center">
             <thead>
                 <tr>
-                    <th scope="col">번 호</th>
-                    <th scope="col">날 짜</th>
-                    <th scope="col">상 태</th>
+                    <th scope="col">상태</th>
+                    <th scope="col">날짜</th>
+                    <th scope="col">상태</th>
                     <th scope="col">치료사</th>
                     <th scope="col">도수타입</th>
-                    <th scope="col" class="max-width">노 트</th>
+                    <th scope="col" class="max-width">노트</th>
                 </tr>
             </thead>
             <tbody>
                 {% if pagination %}
                     {% for dosusess in pagination %}
                         <tr class="text-center align-middle">
-                            <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) -loop.index0 }}</td>
+                            <td>
+                                {% if dosusess.status == 'noshow' %}
+                                    <span class="status-circle status-noshow" title="No Show"></span>
+                                {% elif dosusess.status == 'canceled' %}
+                                    <span class="status-circle status-canceled" title="Canceled"></span>
+                                {% elif dosusess.dosusess_date < today %}
+                                    <span class="status-circle status-past" title="Past"></span>
+                                {% elif dosusess.dosusess_date == today %}
+                                    <span class="status-circle status-today" title="Today"></span>
+                                {% else %}
+                                    <span class="status-circle status-future" title="Future"></span>
+                                {% endif %}
+                                {{ pagination.total - ((pagination.page-1) * pagination.per_page) -loop.index0 }}
+                            </td>
                             <td>{{ dosusess.dosusess_date }}</td>
                             <td>{{ dosusess.status }}</td>
                             <td>{{ dosusess.worker.name }}</td>
@@ -76,7 +96,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="3">해당 기록이 없습니다</td>
+                        <td colspan="6">해당 기록이 없습니다</td>
                     </tr>
                 {% endif %}
             </tbody>

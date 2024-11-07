@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, date
+from calendar import monthrange
 
 from flask import (
     Blueprint,
@@ -10,11 +11,12 @@ from flask import (
     request,
     url_for,
 )
-from sqlalchemy import extract, func
+from sqlalchemy import extract, func, or_, String, Integer
 
 from scheduler import db
 from scheduler.forms import PatientStatsForm, WorkerStatsForm
 from scheduler.models import DosuSess, DosuType, Patient, Worker
+from scheduler.utils import Pagination
 
 bp = Blueprint("stats", __name__, url_prefix="/stats")
 
@@ -399,4 +401,202 @@ def new_patient_count(year=None, month=None, stats_only=False):
         pagination=pagination,
         stats=stats,
         kw=kw,
+    )
+
+
+@bp.route("/monthly_stats/")
+def monthly_stats():
+    # Get year and month from query parameters, default to current date
+    today = datetime.today()
+    year = request.args.get('year', type=int, default=today.year)
+    month = request.args.get('month', type=int, default=today.month)
+    
+    # Validate year and month
+    try:
+        # This will raise ValueError if the date is invalid
+        date(year, month, 1)
+    except ValueError:
+        flash('Invalid year or month selected')
+        return redirect(url_for('stats.monthly_stats'))
+    
+    # Get the start and end dates for the specified month
+    _, last_day = monthrange(year, month)
+    start_date = date(year, month, 1)
+    end_date = date(year, month, last_day)
+
+    # Query for overall statistics - exclude blocked patient
+    stats = db.session.execute(
+        db.select(
+            DosuSess.status,
+            func.count(DosuSess.id).label("count"),
+            func.sum(DosuSess.price).label("total_amount")
+        )
+        .join(Patient, DosuSess.patient_id == Patient.id)  # Add join with Patient
+        .where(
+            DosuSess.dosusess_date.between(start_date, end_date),
+            Patient.mrn != 0  # Exclude blocked patient
+        )
+        .group_by(DosuSess.status)
+    ).all()
+
+    # Query for statistics by worker - exclude blocked patient
+    worker_stats = db.session.execute(
+        db.select(
+            Worker.name,
+            DosuSess.status,
+            func.count(DosuSess.id).label("count"),
+            func.sum(DosuSess.price).label("total_amount")
+        )
+        .join(DosuSess.worker)
+        .join(Patient, DosuSess.patient_id == Patient.id)  # Add join with Patient
+        .where(
+            DosuSess.dosusess_date.between(start_date, end_date),
+            Patient.mrn != 0  # Exclude blocked patient
+        )
+        .group_by(Worker.name, DosuSess.status)
+    ).all()
+
+    # Query for statistics by dosutype - exclude blocked patient
+    dosutype_stats = db.session.execute(
+        db.select(
+            DosuType.name,
+            DosuSess.status,
+            func.count(DosuSess.id).label("count"),
+            func.sum(DosuSess.price).label("total_amount")
+        )
+        .join(DosuSess.dosutype)
+        .join(Patient, DosuSess.patient_id == Patient.id)  # Add join with Patient
+        .where(
+            DosuSess.dosusess_date.between(start_date, end_date),
+            Patient.mrn != 0  # Exclude blocked patient
+        )
+        .group_by(DosuType.name, DosuSess.status)
+    ).all()
+
+    # Process the statistics
+    overview_stats = {
+        "total": 0,
+        "total_amount": 0,
+        "active": 0,
+        "canceled": 0,
+        "noshow": 0,
+    }
+    
+    for stat in stats:
+        overview_stats[stat.status] = stat.count
+        overview_stats["total"] += stat.count
+        if stat.status == "active":
+            overview_stats["total_amount"] = stat.total_amount or 0
+
+    if overview_stats["total"] != 0:
+        noshow_rate = overview_stats["noshow"] / overview_stats["total"] * 100
+        overview_stats["noshow_rate"] = f"{round(noshow_rate)} %"
+    else:
+        overview_stats["noshow_rate"] = "-"
+
+    # Process worker statistics
+    worker_data = {}
+    for stat in worker_stats:
+        if stat.name not in worker_data:
+            worker_data[stat.name] = {"active": 0, "canceled": 0, "noshow": 0, "total_amount": 0}
+        worker_data[stat.name][stat.status] = stat.count
+        if stat.status == "active":
+            worker_data[stat.name]["total_amount"] = stat.total_amount or 0
+
+    # Process dosutype statistics
+    dosutype_data = {}
+    for stat in dosutype_stats:
+        if stat.name not in dosutype_data:
+            dosutype_data[stat.name] = {"active": 0, "canceled": 0, "noshow": 0, "total_amount": 0}
+        dosutype_data[stat.name][stat.status] = stat.count
+        if stat.status == "active":
+            dosutype_data[stat.name]["total_amount"] = stat.total_amount or 0
+
+    return render_template(
+        "stats/monthly_stats.html",
+        year=year,
+        month=month,
+        overview_stats=overview_stats,
+        worker_stats=worker_data,
+        dosutype_stats=dosutype_data
+    )
+
+
+@bp.route("/dosusess_list/")
+def dosusess_list():
+    # Get query parameters
+    year = request.args.get('year', type=int, default=datetime.today().year)
+    month = request.args.get('month', type=int, default=datetime.today().month)
+    search = request.args.get('search', type=str, default='')
+    sort_by = request.args.get('sort', type=str, default='date')  # default sort by date
+    order = request.args.get('order', type=str, default='desc')
+    page = request.args.get('page', type=int, default=1)
+
+    # Create base query - exclude blocked patient
+    base_query = (
+        db.select(DosuSess, Patient, Worker, DosuType)
+        .join(Patient, DosuSess.patient_id == Patient.id)
+        .join(Worker, DosuSess.worker_id == Worker.id)
+        .join(DosuType, DosuSess.dosutype_id == DosuType.id)
+        .where(
+            extract('year', DosuSess.dosusess_date) == year,
+            extract('month', DosuSess.dosusess_date) == month,
+            Patient.mrn != 0  # Exclude blocked patient
+        )
+    )
+
+    # Apply search if provided
+    if search:
+        search_term = f"%{search}%"
+        base_query = base_query.where(
+            or_(
+                Patient.name.ilike(search_term),
+                Patient.mrn.cast(String).ilike(search_term),
+                Worker.name.ilike(search_term),
+                DosuType.name.ilike(search_term),
+                DosuSess.status.ilike(search_term),
+                DosuSess.note.ilike(search_term)
+            )
+        )
+
+    # Apply sorting
+    sort_options = {
+        'date': DosuSess.dosusess_date,
+        'mrn': Patient.mrn.cast(Integer),  # Cast to Integer for proper numeric sorting
+        'patient': Patient.name,
+        'worker': Worker.name,
+        'type': DosuType.name,
+        'status': DosuSess.status,
+        'amount': DosuSess.price
+    }
+    
+    sort_column = sort_options.get(sort_by, DosuSess.dosusess_date)
+    if order == 'desc':
+        sort_column = sort_column.desc()
+    base_query = base_query.order_by(sort_column)
+
+    # Execute query with manual pagination
+    per_page = 20
+    offset = (page - 1) * per_page
+    
+    # Get total count for pagination
+    count_query = db.select(func.count()).select_from(base_query.subquery())
+    total = db.session.scalar(count_query)
+
+    # Get paginated results
+    results = db.session.execute(
+        base_query.offset(offset).limit(per_page)
+    ).all()
+
+    # Create pagination object manually
+    pagination = Pagination(None, page, per_page, total, results)
+
+    return render_template(
+        'stats/dosusess_list.html',
+        pagination=pagination,
+        year=year,
+        month=month,
+        search=search,
+        sort_by=sort_by,
+        order=order
     )
