@@ -221,7 +221,7 @@ class DateTable(db.Model):
     __tablename__ = "date_table"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    date: Mapped[date] = mapped_column(Date, unique=True)
+    date: Mapped["date"] = mapped_column(Date, unique=True)
 
     timeslot_set: Mapped[List["TimeSlot"]] = relationship(
         back_populates="date", cascade="all, delete-orphan"

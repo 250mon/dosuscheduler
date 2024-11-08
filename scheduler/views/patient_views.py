@@ -1,10 +1,20 @@
-from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from datetime import date
+
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from sqlalchemy.exc import IntegrityError
 
 from scheduler import db
 from scheduler.forms import PatientForm
 from scheduler.models import DosuSess, DosuType, Patient, Worker
-from sqlalchemy.exc import IntegrityError
 
 bp = Blueprint("patient", __name__, url_prefix="/patient")
 
@@ -24,15 +34,12 @@ def patient_list():
 
     if kw:
         search = f"%{kw}%"
-        patient_list = (
-            patient_list.options(db.joinedload(Patient.dosusess_set))
-            .filter(
-                Patient.mrn.ilike(search)
-                | Patient.name.ilike(search)
-                | Patient.birthday.ilike(search)
-                | Patient.tel.ilike(search)
-                | Patient.note.ilike(search)
-            )
+        patient_list = patient_list.options(db.joinedload(Patient.dosusess_set)).filter(
+            Patient.mrn.ilike(search)
+            | Patient.name.ilike(search)
+            | Patient.birthday.ilike(search)
+            | Patient.tel.ilike(search)
+            | Patient.note.ilike(search)
         )
 
     # Add error handling for invalid page numbers
