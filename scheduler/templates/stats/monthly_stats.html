@@ -8,12 +8,6 @@
             <!-- Navigation and Selection -->
             <div class="col-md-8">
                 <div class="row align-items-center">
-                    <!-- Previous Month Button -->
-                    <div class="col-md-2">
-                        <a href="{{ url_for('stats.monthly_stats', year=year-1 if month==12 else year, month=12 if month==1 else month-1) }}" 
-                           class="btn btn-outline-primary w-100">&lt; Previous</a>
-                    </div>
-                    
                     <!-- Month Selector Card -->
                     <div class="col-md-8">
                         <div class="card">
@@ -22,18 +16,14 @@
                                     <div class="col-md-5">
                                         <select class="form-select" id="yearSelect" name="year">
                                             {% for y in range(year-2, year+3) %}
-                                            <option value="{{ y }}" {% if y == year %}selected{% endif %}>
-                                                {{ y }}년
-                                            </option>
+                                                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}년</option>
                                             {% endfor %}
                                         </select>
                                     </div>
                                     <div class="col-md-4">
                                         <select class="form-select" id="monthSelect" name="month">
                                             {% for m in range(1, 13) %}
-                                            <option value="{{ m }}" {% if m == month %}selected{% endif %}>
-                                                {{ m }}월
-                                            </option>
+                                                <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}월</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -44,25 +34,30 @@
                             </div>
                         </div>
                     </div>
-
+                    <!-- Previous Month Button -->
+                    <div class="col-md-2">
+                        <a href="{{ url_for('stats.monthly_stats', 
+                                  year=prev_year, 
+                                  month=prev_month) }}"
+                           class="btn btn-outline-primary w-100">&lt; Prev</a>
+                    </div>
                     <!-- Next Month Button -->
                     <div class="col-md-2">
-                        <a href="{{ url_for('stats.monthly_stats', year=year+1 if month==12 else year, month=1 if month==12 else month+1) }}" 
+                        <a href="{{ url_for('stats.monthly_stats', 
+                                  year=next_year, 
+                                  month=next_month) }}"
                            class="btn btn-outline-primary w-100">Next &gt;</a>
                     </div>
                 </div>
             </div>
-
             <!-- Detail List Button -->
             <div class="col-md-4 text-end">
-                <a href="{{ url_for('stats.dosusess_list', year=year, month=month) }}" 
+                <a href="{{ url_for('stats.dosusess_list', year=year, month=month) }}"
                    class="btn btn-secondary">상세 목록 보기</a>
             </div>
         </div>
-
         <!-- Current Month Display -->
         <h2 class="text-center mb-4">{{ year }}년 {{ month }}월</h2>
-
         <!-- Overview Stats -->
         <h5>Overview</h5>
         <div class="mb-4">
@@ -89,7 +84,6 @@
                 </tbody>
             </table>
         </div>
-
         <!-- Worker Stats -->
         <div class="card mb-4">
             <div class="card-body">
@@ -106,19 +100,18 @@
                     </thead>
                     <tbody>
                         {% for worker_name, stats in worker_stats.items() %}
-                        <tr>
-                            <td>{{ worker_name }}</td>
-                            <td>{{ stats.active }}</td>
-                            <td>{{ stats.canceled }}</td>
-                            <td>{{ stats.noshow }}</td>
-                            <td>{{ stats.total_amount|format_currency }}</td>
-                        </tr>
+                            <tr>
+                                <td>{{ worker_name }}</td>
+                                <td>{{ stats.active }}</td>
+                                <td>{{ stats.canceled }}</td>
+                                <td>{{ stats.noshow }}</td>
+                                <td>{{ stats.total_amount|format_currency }}</td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-
         <!-- DosuType Stats -->
         <div class="card">
             <div class="card-body">
@@ -135,20 +128,19 @@
                     </thead>
                     <tbody>
                         {% for dosutype_name, stats in dosutype_stats.items() %}
-                        <tr>
-                            <td>{{ dosutype_name }}</td>
-                            <td>{{ stats.active }}</td>
-                            <td>{{ stats.canceled }}</td>
-                            <td>{{ stats.noshow }}</td>
-                            <td>{{ stats.total_amount|format_currency }}</td>
-                        </tr>
+                            <tr>
+                                <td>{{ dosutype_name }}</td>
+                                <td>{{ stats.active }}</td>
+                                <td>{{ stats.canceled }}</td>
+                                <td>{{ stats.noshow }}</td>
+                                <td>{{ stats.total_amount|format_currency }}</td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const yearSelect = document.getElementById('yearSelect');
@@ -164,4 +156,5 @@
             });
         });
     </script>
-{% endblock %} 
+{% endblock %}
+
