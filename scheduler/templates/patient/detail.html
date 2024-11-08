@@ -36,6 +36,8 @@
            href="{{ url_for('patient.patient_update', id=patient.id) }}">수 정</a>
         <a class="btn btn-danger"
            href="{{ url_for('patient.patient_delete', id=patient.id) }}">삭 제</a>
+        <a class="btn btn-secondary"
+           href="{{ url_for('stats.patient_stats', mrn=patient.mrn) }}">통 계</a>
     </div>
     <hr class="table-group-divider my-5">
     <div class="container my-3">

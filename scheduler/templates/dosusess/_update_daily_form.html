@@ -5,6 +5,7 @@
 <meta name="csrf_token" content="{{ csrf_token() }}" />
 <div class="daily-container">
     <div class="dosusess-list-container"
+         data-user_privilege="{{ g.user.privilege }}"
          data-year="{{ dosusess.date.year }}"
          data-month=" {{ dosusess.date.month }}"
          data-day="{{ dosusess.date.day }}"

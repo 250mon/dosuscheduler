@@ -23,6 +23,7 @@ from wtforms.validators import (
     Length,
     NumberRange,
     Optional,
+    ValidationError,
 )
 
 from scheduler import db
@@ -140,7 +141,7 @@ class PatientForm(FlaskForm):
         "환자번호",
         validators=[
             InputRequired("환자번호는 필수 입력 항목입니다."),
-            NumberRange(min=0, message="Not a negative integer"),
+            NumberRange(min=0, max=999999, message="MRN must be between 0 and 999999"),
         ],
     )
     name = StringField(
@@ -155,7 +156,10 @@ class PatientForm(FlaskForm):
     birthday = DateField(
         "생년월일", validators=[DataRequired("생년월일은 필수 입력 항목입니다.")]
     )
-    tel = TelField("전화번호")
+    tel = TelField(
+        "전화번호",
+        render_kw={"pattern": "[0-9]{3}-[0-9]{4}-[0-9]{4}"}
+    )
     note = TextAreaField("메 모")
 
 
@@ -207,6 +211,14 @@ class DosusessForm(FlaskForm):
     status = StringField(
         "상 태", validators=[DataRequired("상태는 필수 입력 항목입니다.")]
     )
+
+    def validate_status(self, field):
+        if field.data not in ['active', 'canceled', 'noshow']:
+            raise ValidationError('Invalid status value')
+            
+    def validate_dosusess_date(self, field):
+        if field.data < date.today():
+            raise ValidationError('Date cannot be in the past')
 
 
 class UserForm(FlaskForm):

@@ -7,9 +7,11 @@ from flask import (
     render_template,
     request,
     url_for,
+    current_app,
 )
 from flask_wtf import csrf
 from sqlalchemy import and_
+from functools import lru_cache
 
 from scheduler import db
 from scheduler.forms import DosutypeForm
@@ -111,30 +113,53 @@ def dosutype_delete(id):
     )
 
 
+@lru_cache(maxsize=32)
+def get_cached_dosutypes(patient_id: int) -> dict:
+    """Cache the dosutype results for better performance"""
+    try:
+        # Get patient's MRN
+        mrn = db.session.execute(
+            db.select(Patient.mrn).where(Patient.id == patient_id)
+        ).scalar()
+
+        # Query dosutypes based on patient type (blocked or normal)
+        dosutypes = db.session.execute(
+            db.select(DosuType).where(
+                and_(
+                    DosuType.available == True,
+                    (
+                        DosuType.name.like("off%")
+                        if mrn == 0
+                        else DosuType.name.not_like("off%")
+                    ),
+                )
+            )
+        ).scalars().all()  # Add .all() to get all results
+
+        # Convert to dictionary and add debug logging
+        dosutypes_dict = {dt.id: {
+            'id': dt.id,
+            'name': dt.name,
+            'order_code': dt.order_code,
+            'slot_quantity': dt.slot_quantity,
+            'price': dt.price,
+            'available': dt.available
+        } for dt in dosutypes}
+        
+        return dosutypes_dict
+
+    except Exception as e:
+        current_app.logger.error(f"Error in get_cached_dosutypes: {str(e)}")
+        return {}
+
+
 @bp.route("/get_dosutypes/<int:patient_id>")
 def get_dosutypes(patient_id):
-    mrn = db.session.execute(
-        db.select(Patient.mrn).where(Patient.id == patient_id)
-    ).scalar()
-
-    dosutypes = db.session.execute(
-        db.select(DosuType).where(
-            and_(
-                DosuType.available,
-                (
-                    DosuType.name.like("off%")
-                    if mrn == 0
-                    else DosuType.name.not_like("off%")
-                ),
-            )
-        )
-    ).scalars()
-
-    dosutypes_dict = {}
-    for dt in dosutypes:
-        dosutypes_dict[dt.id] = dt.to_dict()
-
-    if dosutypes:
-        return jsonify(dosutypes=dosutypes_dict)
-    else:
-        return jsonify({"error": "dosusess not found"}), 404
+    try:
+        dosutypes_dict = get_cached_dosutypes(patient_id)
+        if dosutypes_dict:
+            return jsonify({"dosutypes": dosutypes_dict})
+        return jsonify({"error": "No dosutypes found"}), 404
+    except Exception as e:
+        current_app.logger.error(f"Error in get_dosutypes: {str(e)}")
+        return jsonify({"error": str(e)}), 500

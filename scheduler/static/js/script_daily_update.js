@@ -1,12 +1,12 @@
 import {
   updateDateDisplay,
   formatDate,
-  compareWithToday,
   generateTable,
   fetchSchedule,
   handleAvailableSlotClick,
   getSlotClickHandler,
-} from "./utils_daily.js";
+} from "./script_daily_utils.js";
+import { compareDates } from "./script_utils.js";
 import { createDosutypeSelect } from "./script_create.js";
 
 const realSlotClickHandler = (event, timeSlot) => {
@@ -100,6 +100,7 @@ $(document).ready(function () {
   const csrfToken = $('meta[name="csrf_token"]').attr("content");
 
   const userPrivilege = dosusessListContainer.data("user_privilege");
+  console.log(userPrivilege);
   // statusFilter should be always 'active' to update the schedule
   const statusFilter = dosusessListContainer.data("status_filter");
   let currentDate = new Date(
@@ -120,8 +121,10 @@ $(document).ready(function () {
     const data = await fetchSchedule(csrfToken, currentDate);
     const timeslotConfig = data.timeslotConfig;
     const dSchedule = data.schedule;
+    // date before tody is not displayed, so no need to take care of the date condition
+    const isEditable = true;
     const lastSlotIndex = generateTable(
-      userPrivilege,
+      isEditable,
       timeslotConfig,
       currentDate,
       statusFilter,
@@ -130,7 +133,7 @@ $(document).ready(function () {
     applyScheduleData(lastSlotIndex, dSchedule);
   };
   prevDateButton.on("click", () => {
-    if (compareWithToday(currentDate) > 0) {
+    if (userPrivilege === 5 || compareDates(currentDate, new Date()) > 0) {
       changeDate(-1);
     }
   });

@@ -34,7 +34,9 @@
                         <tr class="text-center align-middle">
                             <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) -loop.index0 }}</td>
                             <td>{{ dosusess.patient.mrn }}</td>
-                            <td>{{ dosusess.patient.name }}</td>
+                            <td>
+                                <a href="{{ url_for('patient.patient_detail', id=dosusess.patient.id) }}">{{ dosusess.patient.name }}</a>
+                            </td>
                             <td>{{ dosusess.dosusess_date }}</td>
                             <td>{{ dosusess.status }}</td>
                             <td>{{ dosusess.worker.name }}</td>

@@ -4,6 +4,7 @@ from datetime import date
 from scheduler import db
 from scheduler.forms import PatientForm
 from scheduler.models import DosuSess, DosuType, Patient, Worker
+from sqlalchemy.exc import IntegrityError
 
 bp = Blueprint("patient", __name__, url_prefix="/patient")
 
@@ -23,13 +24,24 @@ def patient_list():
 
     if kw:
         search = f"%{kw}%"
-        patient_list = patient_list.filter(
-            Patient.mrn.ilike(search)
-            | Patient.name.ilike(search)
-            | Patient.birthday.ilike(search)
-            | Patient.tel.ilike(search)
-            | Patient.note.ilike(search)
-        ).distinct()
+        patient_list = (
+            patient_list.options(db.joinedload(Patient.dosusess_set))
+            .filter(
+                Patient.mrn.ilike(search)
+                | Patient.name.ilike(search)
+                | Patient.birthday.ilike(search)
+                | Patient.tel.ilike(search)
+                | Patient.note.ilike(search)
+            )
+        )
+
+    # Add error handling for invalid page numbers
+    try:
+        page = int(request.args.get("page", 1))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
 
     pagination = db.paginate(
         patient_list,
@@ -66,9 +78,13 @@ def patient_create():
             db.session.add(patient)
             db.session.commit()
             return redirect(url_for("patient.patient_detail", id=patient.id))
+        except IntegrityError:
+            db.session.rollback()
+            flash("Patient with this MRN already exists")
         except Exception as e:
             db.session.rollback()
-            flash(f"Patient: Failed creating {mrn} {name}: {e}")
+            current_app.logger.exception("Failed to create patient")
+            flash("An unexpected error occurred")
 
     return render_template("patient/form.html", form=form)
 

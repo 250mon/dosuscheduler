@@ -9,8 +9,10 @@ from flask import (
     request,
     session,
     url_for,
+    current_app,
 )
 from sqlalchemy import String, cast, or_
+from sqlalchemy.exc import SQLAlchemyError
 
 from scheduler import db
 from scheduler.models import (
@@ -213,9 +215,11 @@ def dosusess_create():
                 dosusess.timeslot_set.append(ts)
             db.session.add(dosusess)
             db.session.commit()
-        except Exception as e:
+            current_app.logger.info(f"Created dosusess {dosusess.id}")
+        except SQLAlchemyError as e:
             db.session.rollback()
-            flash(f"Failed creating {sess_date} {room} {slot}: {e}")
+            current_app.logger.error(f"Failed to create dosusess: {str(e)}")
+            flash("Database error occurred")
 
         return redirect(
             url_for(

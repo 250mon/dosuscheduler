@@ -7,7 +7,6 @@ from flask_wtf import CSRFProtect
 from sqlalchemy import MetaData
 from werkzeug.routing import BaseConverter, ValidationError
 
-# import config
 
 naming_convention = {
     "ix": "ix_%(column_0_label)s",
@@ -35,7 +34,7 @@ class DateConverter(BaseConverter):
         return value.strftime("%Y-%m-%d")
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
     # app.config.from_object(config)
     app.config.from_envvar("APP_CONFIG_FILE")
@@ -76,7 +75,8 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        auth_views.create_admin()
+        from scheduler.defaults import create_defaults
+        create_defaults()
 
     app.register_error_handler(404, page_not_found)
 

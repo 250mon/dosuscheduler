@@ -1,4 +1,5 @@
-// utils.js
+import { compareDates } from "./script_utils.js";
+
 const convertStrTime = (timeString) => {
   const time = new Date(`1970-01-01T${timeString}`);
   return time;
@@ -29,19 +30,6 @@ export const formatDate = (date) => {
   const day = String(date.getDate()).padStart(2, "0");
   const formattedDate = `${year}-${month}-${day}`;
   return formattedDate;
-};
-
-export const compareWithToday = (date) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  date.setHours(0, 0, 0, 0);
-  if (date > today) {
-    return 1;
-  } else if (date < today) {
-    return -1;
-  } else {
-    return 0;
-  }
 };
 
 // This is a collection of handleAvailableSlotClicks for available slots
@@ -115,7 +103,7 @@ function* timeSlotGenerator(hs) {
 }
 
 export const generateTable = (
-  userPrivilege,
+  isEditable,
   timeslotConfig,
   currentDate,
   statusFilter,
@@ -186,10 +174,7 @@ export const generateTable = (
       // slotClickHandler will create a dosusess if the slot is not active.
       // 2. Otherwise, a detailDosuSessModal appears, which is added
       // in applyScheduleData.
-      if (
-        statusFilter === "active" &&
-        (userPrivilege > 2 || compareWithToday(currentDate) >= 0)
-      ) {
+      if (isEditable) {
         // In applyScheduleData, "available" will be replaced with "status-active"
         // for occupied slots
         timeSlotDiv.addClass("available");
@@ -217,6 +202,17 @@ export const generateTable = (
     }
   });
   return lastSlotIndex;
+};
+
+export const isSlotEditable = (userPrivilege, statusFilter, currentDate) => {
+  const isActiveStatus = statusFilter === "active";
+  const isAdmin = userPrivilege > 3;
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const isUserAllowed =
+    (userPrivilege === 3 && compareDates(currentDate, firstDayOfMonth) >= 0) || // compare with the first day of the month
+    (userPrivilege < 3 && compareDates(currentDate, new Date()) >= 0); // compare with today
+  return isActiveStatus && (isAdmin || isUserAllowed);
 };
 
 export const fetchSchedule = async (csrfToken, currentDate) => {

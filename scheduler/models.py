@@ -16,6 +16,7 @@ from sqlalchemy import (
     and_,
     event,
     or_,
+    func,
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
@@ -40,6 +41,72 @@ class Worker(db.Model):
 
     def __repr__(self) -> str:
         return f"Worker(id={self.id!r}, name={self.name!r})"
+
+    def get_status_counts(self, start_date, end_date):
+        """Get counts of sessions by status and total amount"""
+        results = db.session.execute(
+            db.select(
+                DosuSess.status,
+                func.count(DosuSess.id).label("count"),
+                func.sum(DosuSess.price).label("amount")
+            )
+            .filter(
+                DosuSess.worker_id == self.id,
+                DosuSess.dosusess_date.between(start_date, end_date)
+            )
+            .group_by(DosuSess.status)
+        ).all()
+
+        counts = {row[0]: row[1] for row in results}
+        total_amount = sum(row[2] or 0 for row in results)
+        counts["total_amount"] = total_amount
+        return counts
+
+    def get_dosutype_counts(self, start_date, end_date):
+        """Get counts of sessions by dosutype and status"""
+        results = db.session.execute(
+            db.select(
+                DosuType.name,
+                DosuSess.status,
+                func.count(DosuSess.id).label("count")
+            )
+            .join(DosuSess.dosutype)
+            .filter(
+                DosuSess.worker_id == self.id,
+                DosuSess.dosusess_date.between(start_date, end_date)
+            )
+            .group_by(DosuType.name, DosuSess.status)
+        ).all()
+
+        counts = {}
+        for dt_name, status, count in results:
+            if dt_name not in counts:
+                counts[dt_name] = {}
+            counts[dt_name][status] = count
+        return counts
+
+    def get_patient_counts(self, start_date, end_date):
+        """Get counts of sessions by patient and status"""
+        results = db.session.execute(
+            db.select(
+                Patient.id,
+                DosuSess.status,
+                func.count(DosuSess.id).label("count")
+            )
+            .join(DosuSess.patient)
+            .filter(
+                DosuSess.worker_id == self.id,
+                DosuSess.dosusess_date.between(start_date, end_date)
+            )
+            .group_by(Patient.id, DosuSess.status)
+        ).all()
+
+        counts = {}
+        for patient_id, status, count in results:
+            if patient_id not in counts:
+                counts[patient_id] = {}
+            counts[patient_id][status] = count
+        return counts
 
 
 class Patient(db.Model):
@@ -457,7 +524,14 @@ def get_or_create(model, **kwargs):
     """
     Either retrieve a record matching certain conditions or
     create a new record if none exists.
+    
+    Args:
+        model: SQLAlchemy model class
+        **kwargs: Parameters for lookup and creation
     """
+    # Separate defaults from lookup parameters
+    defaults = kwargs.pop('defaults', {})
+    
     instance = db.session.execute(
         db.select(model).filter_by(**kwargs)
     ).scalar_one_or_none()
@@ -465,7 +539,10 @@ def get_or_create(model, **kwargs):
     if instance:
         return instance, False
     else:
-        instance = model(**kwargs)
+        # Combine lookup parameters with defaults for creation
+        params = dict(kwargs)
+        params.update(defaults)
+        instance = model(**params)
         try:
             db.session.add(instance)
             db.session.commit()

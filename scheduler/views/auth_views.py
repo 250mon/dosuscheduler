@@ -11,20 +11,6 @@ from scheduler.models import User
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
-def create_admin():
-    try:
-        admin_user = User(
-            username="admin",
-            password=generate_password_hash("a"),
-            email=None,
-            privilege=5,
-        )
-        db.session.add(admin_user)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-
-
 @bp.route("/list")
 def user_list():
     if not g.user or g.user.privilege != 5:

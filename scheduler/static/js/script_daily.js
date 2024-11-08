@@ -5,7 +5,8 @@ import {
   fetchSchedule,
   handleAvailableSlotClick,
   getSlotClickHandler,
-} from "./utils_daily.js";
+  isSlotEditable,
+} from "./script_daily_utils.js";
 
 const realSlotClickHandler = (event, timeSlot) => {
   // Notify the server which time slot is clicked
@@ -146,8 +147,9 @@ $(document).ready(function () {
     const data = await fetchSchedule(csrfToken, currentDate);
     const timeslotConfig = data.timeslotConfig;
     const dSchedule = data.schedule;
+    const isEditable = isSlotEditable(userPrivilege, statusFilter, currentDate);
     const lastSlotIndex = generateTable(
-      userPrivilege,
+      isEditable,
       timeslotConfig,
       currentDate,
       statusFilter,
