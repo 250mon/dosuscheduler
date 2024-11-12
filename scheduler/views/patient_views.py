@@ -11,6 +11,10 @@ from flask import (
     url_for,
 )
 from sqlalchemy.exc import IntegrityError
+from flask import Blueprint, flash, g, redirect, render_template, request, url_for, send_file
+from datetime import date, datetime
+import csv
+from io import StringIO, BytesIO
 
 from scheduler import db
 from scheduler.forms import PatientForm
@@ -194,4 +198,71 @@ def patient_delete(id):
         entity_delete_url="patient.patient_delete",
         entity_list_url="patient.patient_list",
         need_confirm=need_confirm,
+    )
+
+
+@bp.route("/export")
+def patient_export():
+    # Get query parameters to match the current list view
+    kw = request.args.get("kw", type=str, default="")
+    so = request.args.get("so", type=str, default="mrn")
+
+    # Create the base query
+    if so == "mrn":
+        patient_list = db.select(Patient).order_by(Patient.mrn.desc())
+    elif so == "name":
+        patient_list = db.select(Patient).order_by(Patient.name.desc())
+    else:
+        patient_list = db.select(Patient).order_by(Patient.id.desc())
+
+    # Apply search filter if exists
+    if kw:
+        search = f"%{kw}%"
+        patient_list = patient_list.filter(
+            Patient.mrn.ilike(search)
+            | Patient.name.ilike(search)
+            | Patient.birthday.ilike(search)
+            | Patient.tel.ilike(search)
+            | Patient.note.ilike(search)
+        ).distinct()
+
+    # Execute query
+    patients = db.session.execute(patient_list).scalars()
+
+    # Create a string buffer and write to it
+    si = StringIO()
+    cw = csv.writer(si)
+    
+    # Write headers with BOM for Excel
+    cw.writerow(['환자번호', '이름', '성별', '생일', '전화번호', '메모'])
+    
+    # Write data
+    for patient in patients:
+        cw.writerow([
+            patient.mrn,
+            patient.name,
+            '남' if patient.sex == 'male' else '여',
+            patient.birthday.strftime('%Y-%m-%d') if patient.birthday else '',
+            patient.tel,
+            patient.note
+        ])
+
+    # Get the string value and encode it
+    output = si.getvalue().encode('utf-8-sig')  # Use UTF-8 with BOM for Excel
+    si.close()
+    
+    # Create a BytesIO object
+    bio = BytesIO()
+    bio.write(output)
+    bio.seek(0)  # Move to the beginning of the buffer
+    
+    # Generate filename with current timestamp
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'patients_{timestamp}.csv'
+
+    return send_file(
+        bio,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=filename
     )

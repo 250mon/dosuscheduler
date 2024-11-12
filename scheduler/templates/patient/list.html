@@ -15,13 +15,17 @@
                     <button type="button" class="btn btn-outline-secondary" id="searchBtn">Search</button>
                 </div>
             </div>
-            <!-- Sort order -->
-            <div class="col-3">
-                <select class="form-select" id="so">
+            <!-- Sort order and Export -->
+            <div class="col-6 d-flex justify-content-end gap-2">
+                <select class="form-select w-50" id="so">
                     <option value="id" {% if so == "id" %}selected{% endif %}>최신순</option>
                     <option value="mrn" {% if so == "mrn" %}selected{% endif %}>환자번호순</option>
                     <option value="name" {% if so == "name" %}selected{% endif %}>이름순</option>
                 </select>
+                <a href="{{ url_for('patient.patient_export', kw=kw, so=so) }}" 
+                   class="btn btn-success">
+                    Export CSV
+                </a>
             </div>
         </div>
         <table class="table table-striped text-center">
