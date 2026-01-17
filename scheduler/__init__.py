@@ -4,7 +4,8 @@ from flask import Flask, render_template
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, text
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.routing import BaseConverter, ValidationError
 
 
@@ -34,6 +35,30 @@ class DateConverter(BaseConverter):
         return value.strftime("%Y-%m-%d")
 
 
+def check_database_connection(app):
+    """
+    Check if the database is accessible by executing a simple query.
+    
+    Args:
+        app: Flask application instance
+        
+    Raises:
+        SQLAlchemyError: If database connection fails
+    """
+    try:
+        with app.app_context():
+            # Execute a simple query to test database connectivity
+            db.session.execute(text("SELECT 1"))
+            db.session.commit()
+            app.logger.info("Database connection check: SUCCESS - Database is accessible")
+    except SQLAlchemyError as e:
+        app.logger.error(f"Database connection check: FAILED - {str(e)}")
+        raise
+    except Exception as e:
+        app.logger.error(f"Database connection check: FAILED - Unexpected error: {str(e)}")
+        raise
+
+
 def create_app(test_config=None):
     app = Flask(__name__)
     # app.config.from_object(config)
@@ -46,6 +71,9 @@ def create_app(test_config=None):
         migrate.init_app(app, db)
 
     db.init_app(app)
+
+    # Check database connectivity
+    check_database_connection(app)
 
     csrf = CSRFProtect(app)
 
