@@ -1,0 +1,44 @@
+services:
+  dosuscheduler-dev:
+    image: lambki/dosuscheduler-dev:latest
+    container_name: dosuscheduler-dev
+    profiles:
+      - dev
+    build: .
+    ports:
+      - "5551:5551"
+    networks:
+      - my-shared-proxy-net
+    environment:
+      - APP_CONFIG_FILE=../appconfig/development.py
+    volumes:
+      # Mount the database so it persists
+      - ./scheduler.db:/app/scheduler.db
+      # Mount logs directory
+      - ./logs:/app/logs
+      # Mount app code for development (optional - remove for production)
+      - .:/app
+    restart: unless-stopped
+
+  dosuscheduler-prod:
+    image: lambki/dosuscheduler-dev:latest
+    container_name: dosuscheduler-prod
+    profiles:
+      - prod
+    build: .
+    ports:
+      - "5551:5551"
+    networks:
+      - my-shared-proxy-net
+    environment:
+      - APP_CONFIG_FILE=../appconfig/production.py
+    volumes:
+      # Mount the database so it persists
+      - ./scheduler.db:/app/scheduler.db
+      # Mount logs directory
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+networks:
+  my-shared-proxy-net:
+    external: true

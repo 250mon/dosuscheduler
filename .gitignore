@@ -9,7 +9,7 @@
 !requirements.txt
 !Procfile
 !.dockerignore
-!.docker-compose.yml
+!docker-compose.yml
 !Dockerfile
 !*.py
 !*.js
