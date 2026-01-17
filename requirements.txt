@@ -1,0 +1,7 @@
+flask
+flask-wtf
+flask-sqlalchemy
+gunicorn
+psycopg2-binary
+flask-migrate
+python-dateutil
