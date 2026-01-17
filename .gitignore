@@ -8,7 +8,9 @@
 !Pipfile*
 !requirements.txt
 !Procfile
-!dosu.env
+!.dockerignore
+!.docker-compose.yml
+!Dockerfile
 !*.py
 !*.js
 !*.html
